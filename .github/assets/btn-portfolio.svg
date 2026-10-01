@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="56" viewBox="0 -2 180 58" role="img" aria-label="My portfolio ↗"><title>My portfolio ↗</title>
+<defs><filter id="b20" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="8"/></filter></defs>
+<style>
+.d{font-family:'Clash Display','Arial Black','Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:800}
+.s{font-family:Satoshi,Inter,'Segoe UI',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}
+.m{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em}
+.pulse{animation:p 2.2s cubic-bezier(.16,1,.3,1) infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+.sweep{animation:sw 4.5s cubic-bezier(.32,.72,0,1) infinite}
+@keyframes sw{0%{transform:translateX(-400px)}60%,100%{transform:translateX(1700px)}}
+.spin{animation:r 18s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.pulse,.sweep,.spin{animation:none}}
+</style><g transform="translate(0 0)">
+<rect width="180" height="52" rx="26" fill="#EDEDE8" fill-opacity=".05" stroke="#EDEDE8" stroke-opacity=".18"/>
+<rect x="1" y="1" width="178" height="25" rx="25" fill="#fff" fill-opacity=".04"/>
+<text x="90.0" y="32" class="s" font-size="16" font-weight="600" fill="#EDEDE8" text-anchor="middle">My portfolio ↗</text></g></svg>

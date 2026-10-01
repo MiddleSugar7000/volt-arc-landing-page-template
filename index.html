@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VOLT Arc</title>
+<meta name="description" content="VOLT Arc. A 204 hp electric hypersport built around an axial-flux motor the size of a dinner plate.">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="preload" as="image" href="assets/hero-bike.webp">
+<style>
+/* ---------- Tokens ---------- */
+:root{
+  --bg:#0A0A0B;
+  --bg-2:#111113;
+  --bg-3:#18181B;
+  --line:rgba(237,237,232,.08);
+  --line-2:rgba(237,237,232,.14);
+  --text:#EDEDE8;
+  --muted:rgba(237,237,232,.58);
+  --faint:rgba(237,237,232,.34);
+  --lime:#C6FF00;
+  --lime-ink:#0A0A0B;
+  --ease:cubic-bezier(.32,.72,0,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --r-card:28px;
+  --r-inner:22px;
+  --gutter:clamp(16px,3.2vw,48px);
+  --speed:0;
+  /* z scale: 0 gl canvas, 1 content, 20 nav, 30 menu overlay, 40 loader, 50 grain */
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:"Satoshi",system-ui,sans-serif;font-size:17px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body.is-loading{overflow:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:var(--lime);color:var(--lime-ink)}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:6px}
+.display{font-family:"Clash Display","Satoshi",sans-serif;font-weight:600;letter-spacing:-.02em;line-height:.9}
+.tnum{font-variant-numeric:tabular-nums}
+.wrap{width:100%;max-width:1480px;margin:0 auto;padding:0 var(--gutter)}
+.lime{color:var(--lime)}
+.muted{color:var(--muted)}
+.line{display:block;overflow:hidden;padding-bottom:.04em}
+.line>span{display:inline-block;will-change:transform}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Grain: fixed, non-interactive */
+body::after{
+  content:"";position:fixed;inset:-50%;z-index:50;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- WebGL stage ---------- */
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
+main{position:relative;z-index:1}
+
+/* ---------- Loader ---------- */
+.loader{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;align-content:end;padding:var(--gutter)}
+.loader-count{font-size:clamp(6rem,22vw,22rem);line-height:.8;color:var(--text)}
+.loader-count small{font-size:.25em;color:var(--lime);margin-left:.1em;vertical-align:top}
+.loader-bar{height:2px;background:var(--line);margin-top:24px;overflow:hidden}
+.loader-bar i{display:block;height:100%;background:var(--lime);transform-origin:left;transform:scaleX(0)}
+.loader-meta{display:flex;justify-content:space-between;margin-top:14px;color:var(--muted);font-size:14px}
+
+/* ---------- Buttons ---------- */
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:14px;white-space:nowrap;
+  height:54px;padding:0 8px 0 26px;border-radius:999px;font-weight:500;font-size:16px;
+  transition:transform .5s var(--ease),background-color .5s var(--ease),color .5s var(--ease);
+}
+.btn:active{transform:scale(.98)}
+.btn .ico{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;font-size:18px;transition:transform .6s var(--ease)}
+.btn:hover .ico{transform:translate(3px,-2px) scale(1.06)}
+.btn-lime{background:var(--lime);color:var(--lime-ink)}
+.btn-lime .ico{background:var(--lime-ink);color:var(--lime)}
+.btn-lime:hover{background:#D4FF3D}
+.btn-ghost{background:rgba(237,237,232,.06);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+.btn-ghost .ico{background:rgba(237,237,232,.08)}
+.btn-ghost:hover{background:rgba(237,237,232,.1)}
+.btn-sm{height:44px;padding:0 6px 0 20px;font-size:15px;gap:10px}
+.btn-sm .ico{width:32px;height:32px;font-size:15px}
+
+/* ---------- Nav ---------- */
+.nav::before{content:"";position:absolute;inset:0 0 -24px;z-index:-1;pointer-events:none;background:linear-gradient(to bottom,rgba(10,10,11,.85),rgba(10,10,11,0))}
+.nav{position:fixed;top:0;left:0;right:0;z-index:20;padding:16px var(--gutter);display:flex;align-items:center;justify-content:space-between;gap:24px;height:76px}
+.brand{display:flex;align-items:center;gap:10px;font-family:"Clash Display",sans-serif;font-weight:700;font-size:22px;letter-spacing:.02em}
+.brand-mark{width:22px;height:14px;background:var(--lime);transform:skewX(-24deg);border-radius:2px}
+.nav-links{
+  position:relative;display:flex;gap:4px;padding:5px;border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.14),0 10px 30px -12px rgba(0,0,0,.6);
+}
+.nav-links a{position:relative;z-index:1;padding:9px 16px;border-radius:999px;font-size:14.5px;color:var(--muted);transition:color .45s var(--ease)}
+.nav-links a:hover,.nav-links a.is-hover{color:var(--text)}
+.nav-glide{
+  position:absolute;top:5px;left:0;height:calc(100% - 10px);width:0;border-radius:999px;pointer-events:none;opacity:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.22);
+  will-change:transform,width;transition:opacity .35s var(--ease);
+}
+.nav-links.has-glide .nav-glide{opacity:1}
+.nav-right{display:flex;align-items:center;gap:10px}
+.burger{display:none;width:44px;height:44px;border-radius:999px;position:relative;background:rgba(17,17,19,.6);box-shadow:inset 0 0 0 1px var(--line-2)}
+.burger i{position:absolute;left:13px;right:13px;height:1.5px;background:var(--text);transition:transform .6s var(--ease),top .6s var(--ease)}
+.burger i:nth-child(1){top:18px}.burger i:nth-child(2){top:25px}
+.menu-open .burger i:nth-child(1){top:21.5px;transform:rotate(45deg)}
+.menu-open .burger i:nth-child(2){top:21.5px;transform:rotate(-45deg)}
+.menu{
+  position:fixed;inset:0;z-index:30;background:rgba(10,10,11,.86);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  display:flex;flex-direction:column;justify-content:center;padding:var(--gutter);gap:6px;
+  opacity:0;visibility:hidden;transition:opacity .6s var(--ease),visibility 0s linear .6s;
+}
+.menu a{font-family:"Clash Display",sans-serif;font-size:clamp(2.6rem,11vw,4.5rem);font-weight:600;line-height:1.05;transform:translateY(48px);opacity:0;transition:transform .8s var(--ease),opacity .8s var(--ease)}
+.menu-open .menu{opacity:1;visibility:visible;transition:opacity .6s var(--ease)}
+.menu-open .menu a{transform:none;opacity:1}
+.menu-open .menu a:nth-child(2){transition-delay:.05s}.menu-open .menu a:nth-child(3){transition-delay:.1s}
+.menu-open .menu a:nth-child(4){transition-delay:.15s}.menu-open .menu a:nth-child(5){transition-delay:.2s}
+.menu-open .nav{z-index:35}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:100dvh;display:grid;align-content:end;padding:96px 0 clamp(28px,4vw,56px)}
+.hero-grid{display:grid;grid-template-columns:1fr minmax(260px,430px);align-items:end;gap:40px}
+.hero h1{font-size:clamp(4.2rem,13.2vw,13.5rem);text-transform:uppercase;line-height:.84}
+.hero-side p{font-size:18px;color:var(--muted);max-width:34ch;margin-bottom:28px}
+.hero-side p strong{color:var(--text);font-weight:500}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:10px}
+.hero-fade{position:absolute;inset:auto 0 0 0;height:30vh;background:linear-gradient(to top,var(--bg),transparent);pointer-events:none;z-index:-1}
+
+/* ---------- Exploded motor (pinned) ---------- */
+.explode{position:relative;height:100dvh;display:grid;grid-template-rows:auto 1fr auto;padding:110px 0 clamp(28px,4vw,48px)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--lime);margin-bottom:18px;letter-spacing:.04em}
+.explode h2{font-size:clamp(2.6rem,5.4vw,5.6rem);max-width:12ch}
+.explode-intro p{color:var(--muted);max-width:40ch;margin-top:18px}
+.explode-intro{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:end}
+.explode-readout{justify-self:end;text-align:right}
+.explode-readout b{display:block;font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(3rem,6vw,6rem);line-height:.9}
+.explode-readout span{color:var(--muted);font-size:14px}
+.parts{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,2vw,28px)}
+.part{padding-top:18px;position:relative;opacity:.32;transition:opacity .6s var(--ease)}
+.part::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:var(--line-2)}
+.part::after{content:"";position:absolute;top:0;left:0;height:2px;width:100%;background:var(--lime);transform:scaleX(0);transform-origin:left;transition:transform .8s var(--ease)}
+.part.on{opacity:1}
+.part.on::after{transform:scaleX(1)}
+.part h3{font-family:"Clash Display",sans-serif;font-weight:500;font-size:22px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.part h3 i{font-size:20px;color:var(--lime)}
+.part p{color:var(--muted);font-size:15px;margin-top:6px;max-width:30ch}
+
+/* ---------- Manifesto ---------- */
+.solid{background:var(--bg);position:relative}
+.manifesto{padding:clamp(120px,16vw,220px) 0}
+.manifesto p{font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(2rem,4.4vw,4.6rem);line-height:1.08;letter-spacing:-.015em;max-width:22ch}
+.manifesto .w{opacity:.14;transition:none}
+.pill-img{display:inline-block;width:2.3em;height:.92em;border-radius:999px;vertical-align:-.06em;margin:0 .12em;background-size:cover;background-position:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+
+/* ---------- Reveal (pinned clip-path) ---------- */
+.reveal{position:relative;height:100dvh;overflow:hidden;background:var(--bg)}
+.reveal-media{position:absolute;inset:0;overflow:hidden;clip-path:inset(22% 26% 22% 26% round 28px);will-change:clip-path}
+.reveal-media img{width:100%;height:100%;object-fit:cover;object-position:50% 45%;transform:scale(1.3);will-change:transform}
+.reveal-media::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,11,.95) 0%,rgba(10,10,11,.2) 38%,transparent 60%),radial-gradient(ellipse 60% 55% at 10% 12%,rgba(10,10,11,.85),transparent 70%)}
+.reveal-inner{position:absolute;inset:0;display:grid;grid-template-rows:1fr auto;padding:110px 0 clamp(28px,4vw,52px)}
+.reveal-title{font-size:clamp(3.4rem,9vw,9.5rem);text-transform:uppercase;align-self:start}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2.4vw,40px)}
+.stat b{display:block;font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(2.6rem,5.4vw,5.6rem);line-height:.95;letter-spacing:-.02em}
+.stat b sup{font-size:.36em;vertical-align:top;margin-left:.15em;color:var(--lime);font-weight:500;position:relative;top:.35em}
+.stat>span{display:block;color:var(--muted);font-size:15px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-2)}
+
+/* ---------- Horizontal gallery ---------- */
+.hz{position:relative;overflow:hidden;background:var(--bg)}
+.hz-track{display:flex;align-items:center;gap:clamp(20px,3vw,48px);height:100dvh;padding:0 var(--gutter);width:max-content}
+.hz-intro{width:min(40vw,560px);flex:none}
+.hz-intro h2{font-size:clamp(2.6rem,4.8vw,5rem)}
+.hz-intro p{color:var(--muted);margin-top:20px;max-width:36ch}
+.hz-card{flex:none;display:flex;flex-direction:column;gap:14px}
+.hz-card .media{overflow:hidden;border-radius:24px;position:relative;box-shadow:inset 0 0 0 1px var(--line)}
+.hz-card img{height:100%;width:118%;max-width:none;object-fit:cover;will-change:transform}
+.hz-card figcaption{display:flex;justify-content:space-between;gap:20px;font-size:15px;color:var(--muted)}
+.hz-card figcaption strong{color:var(--text);font-weight:500}
+.hz-card.c1 .media{height:68vh;aspect-ratio:2/3;align-self:flex-start}
+.hz-card.c2 .media{height:56vh;aspect-ratio:3/2}
+.hz-card.c3{align-self:flex-start;margin-top:14vh}
+.hz-card.c3 .media{height:44vh;aspect-ratio:3/2}
+.hz-card.c4{align-self:flex-end;margin-bottom:12vh}
+.hz-card.c4 .media{height:60vh;aspect-ratio:3/2}
+.hz-end{flex:none;width:30vw;max-width:420px}
+.hz-end b{font-family:"Clash Display",sans-serif;font-weight:600;font-size:clamp(5rem,12vw,12rem);line-height:.8;display:block;color:var(--lime)}
+.hz-end span{color:var(--muted)}
+
+/* ---------- Bento ---------- */
+.tech{padding:clamp(120px,14vw,200px) 0}
+.tech-head{margin-bottom:clamp(40px,5vw,72px)}
+.tech-head h2{font-size:clamp(2.6rem,5.4vw,5.6rem);max-width:16ch}
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(260px,auto);grid-auto-flow:dense;gap:14px}
+.shell{padding:6px;border-radius:var(--r-card);background:rgba(237,237,232,.03);box-shadow:inset 0 0 0 1px var(--line)}
+.core{height:100%;border-radius:var(--r-inner);background:var(--bg-2);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden;padding:clamp(22px,2.4vw,32px);display:flex;flex-direction:column}
+.b-battery{grid-column:span 2;grid-row:span 2}
+.b-charge{grid-column:span 2}
+.b-weight,.b-range{grid-column:span 1}
+.b-modes{grid-column:span 4}
+.b-battery .core{padding:0;justify-content:flex-end}
+.b-battery img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}
+.b-battery:hover img{transform:scale(1.05)}
+.b-battery .core::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,11,.96) 8%,rgba(10,10,11,.3) 55%,transparent)}
+.b-battery .txt{position:relative;z-index:1;padding:clamp(22px,2.4vw,34px)}
+.card-title{font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(1.6rem,2.3vw,2.2rem);line-height:1.05;letter-spacing:-.01em}
+.card-body{color:var(--muted);font-size:15.5px;margin-top:10px;max-width:42ch}
+.big-num{font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(3.4rem,5.6vw,5.4rem);line-height:.9;letter-spacing:-.02em}
+.big-num small{font-size:.38em;color:var(--muted);margin-left:.15em;font-weight:500}
+.card-ico{font-size:26px;color:var(--lime);margin-bottom:auto}
+.b-weight .core,.b-range .core{justify-content:space-between;gap:28px}
+.charge-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.segs{display:grid;grid-template-columns:repeat(20,1fr);gap:4px;margin:auto 0 18px;padding-top:28px}
+.segs i{height:46px;border-radius:5px;background:rgba(237,237,232,.07);transition:background-color .25s var(--ease),box-shadow .25s var(--ease)}
+.segs i.on{background:var(--lime)}
+.segs i.pre{background:rgba(198,255,0,.28)}
+.charge-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:14px}
+.modes{display:grid;grid-template-columns:minmax(260px,.8fr) 1.6fr;gap:clamp(24px,3vw,48px);height:100%}
+.mode-tabs{display:flex;gap:6px;padding:5px;border-radius:999px;background:rgba(237,237,232,.04);box-shadow:inset 0 0 0 1px var(--line);width:max-content;margin:22px 0 26px}
+.mode-tabs button{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;font-size:15px;color:var(--muted);transition:background-color .5s var(--ease),color .5s var(--ease)}
+.mode-tabs button[aria-selected="true"]{background:var(--lime);color:var(--lime-ink)}
+.mode-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:auto}
+.mode-stats div b{display:block;font-family:"Clash Display",sans-serif;font-weight:500;font-size:28px;line-height:1}
+.mode-stats div span{font-size:13.5px;color:var(--muted)}
+.curve-wrap{position:relative;min-height:280px;border-radius:16px;background:rgba(10,10,11,.6);box-shadow:inset 0 0 0 1px var(--line)}
+#curve{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- Marquee ---------- */
+.marquee{overflow:hidden;padding:clamp(28px,4vw,56px) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.marquee-track{display:flex;width:max-content;will-change:transform}
+.marquee-track span{font-family:"Clash Display",sans-serif;font-weight:600;font-size:clamp(4rem,10vw,10rem);line-height:.9;text-transform:uppercase;padding-right:.35em;white-space:nowrap;color:transparent;-webkit-text-stroke:1.5px rgba(237,237,232,.42)}
+.marquee-track span em{font-style:normal;color:var(--lime);-webkit-text-stroke:0}
+
+/* ---------- Launch control ---------- */
+.launch{position:relative;padding:clamp(120px,14vw,200px) 0;overflow:hidden;isolation:isolate}
+.launch-streaks{position:absolute;inset:0;z-index:-1;opacity:calc(.1 + var(--speed) * .9);
+  background:
+    repeating-linear-gradient(90deg,transparent 0 140px,rgba(198,255,0,.18) 140px 220px,transparent 220px 420px),
+    repeating-linear-gradient(90deg,transparent 0 260px,rgba(237,237,232,.08) 260px 300px,transparent 300px 560px);
+  background-size:100% 2px,100% 1px;background-repeat:repeat-y;
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 10%,transparent 72%);mask-image:radial-gradient(ellipse at center,#000 10%,transparent 72%);
+}
+.launch-streaks.l2{background-size:100% 3px,100% 2px}
+.launch-grid{display:grid;grid-template-columns:1fr minmax(320px,560px) 1fr;align-items:center;gap:clamp(24px,4vw,64px)}
+.launch-copy h2{font-size:clamp(2.6rem,5vw,5rem);max-width:9ch}
+.launch-copy p{color:var(--muted);margin-top:18px;max-width:30ch}
+.gauge{position:relative;aspect-ratio:1;width:100%;will-change:transform}
+#gauge{position:absolute;inset:0;width:100%;height:100%}
+.gauge-read{position:absolute;inset:0;display:grid;place-items:center;align-content:center;text-align:center}
+.gauge-read b{font-family:"Clash Display",sans-serif;font-weight:600;font-size:clamp(4.6rem,9vw,8.4rem);line-height:.85;letter-spacing:-.03em}
+.gauge-read span{color:var(--muted);font-size:15px;margin-top:6px}
+.hold{
+  position:absolute;left:50%;bottom:4%;transform:translateX(-50%);
+  width:clamp(92px,9vw,116px);aspect-ratio:1;border-radius:999px;background:var(--lime);color:var(--lime-ink);
+  font-family:"Clash Display",sans-serif;font-weight:600;font-size:17px;letter-spacing:.06em;text-transform:uppercase;
+  display:grid;place-items:center;touch-action:none;user-select:none;-webkit-user-select:none;
+  box-shadow:0 0 0 8px rgba(198,255,0,.08),0 0 0 18px rgba(198,255,0,.04);
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease);
+}
+.hold.down{transform:translateX(-50%) scale(.93);box-shadow:0 0 0 12px rgba(198,255,0,.16),0 0 0 28px rgba(198,255,0,.06)}
+.launch-log{display:grid;gap:22px;justify-self:end;text-align:right}
+.launch-log div b{display:block;font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(2.2rem,3.4vw,3.2rem);line-height:1}
+.launch-log div span{font-size:14px;color:var(--muted)}
+.launch-log .hit b{color:var(--lime)}
+
+/* ---------- Reserve ---------- */
+.reserve{padding:clamp(80px,10vw,140px) 0 clamp(120px,12vw,180px)}
+.reserve-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+.reserve-photo .core{padding:0;min-height:620px}
+.reserve-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.reserve-form .core{justify-content:center;gap:0;padding:clamp(28px,4vw,64px)}
+.reserve h2{font-size:clamp(3rem,6vw,6rem);text-transform:uppercase}
+.price{display:flex;align-items:baseline;gap:14px;margin:22px 0 10px;flex-wrap:wrap}
+.price b{font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(2rem,3vw,2.8rem)}
+.price span{color:var(--muted);font-size:15px}
+.reserve .lead{color:var(--muted);max-width:44ch;margin-bottom:32px}
+form{display:grid;gap:18px}
+.field{display:grid;gap:8px}
+.field label{font-size:14px;font-weight:500;color:var(--text)}
+.field input,.field select{
+  height:54px;border-radius:14px;border:0;background:var(--bg);color:var(--text);font:inherit;font-size:16px;padding:0 18px;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .3s var(--ease);appearance:none;-webkit-appearance:none;
+}
+.field select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 22px) 24px,calc(100% - 17px) 24px;background-size:5px 5px;background-repeat:no-repeat}
+.field input::placeholder{color:rgba(237,237,232,.45)}
+.field input:focus,.field select:focus{outline:none;box-shadow:inset 0 0 0 2px var(--lime)}
+.field .err{font-size:13.5px;color:#FF8A7A;min-height:0}
+.field.invalid input{box-shadow:inset 0 0 0 2px #FF8A7A}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-foot{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:8px}
+.form-foot small{color:var(--muted);font-size:13.5px;max-width:30ch}
+.btn[disabled]{opacity:.85;cursor:progress}
+.btn.loading .ico i{animation:spinbolt 1s var(--ease) infinite}
+@keyframes spinbolt{50%{transform:scale(.6);opacity:.4}}
+.success{display:none;flex-direction:column;gap:14px}
+.success i{font-size:44px;color:var(--lime)}
+.success h3{font-family:"Clash Display",sans-serif;font-weight:500;font-size:clamp(2rem,3vw,2.8rem);line-height:1}
+.success p{color:var(--muted);max-width:40ch}
+.done form{display:none}.done .success{display:flex}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--line);padding-top:clamp(48px,6vw,80px);overflow:hidden}
+.foot-row{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:32px}
+.foot-row h4{font-size:14px;color:var(--muted);font-weight:500;margin-bottom:14px}
+.foot-row ul{list-style:none;display:grid;gap:8px}
+.foot-row a{transition:color .3s var(--ease)}
+.foot-row a:hover{color:var(--lime)}
+.foot-row p{color:var(--muted);max-width:32ch}
+.wordmark{font-family:"Clash Display",sans-serif;font-weight:700;font-size:31vw;line-height:.74;letter-spacing:-.04em;text-align:center;margin-top:clamp(40px,6vw,90px);display:flex;justify-content:center;user-select:none}
+.wordmark span{display:inline-block;background:linear-gradient(to bottom,var(--text) 30%,rgba(237,237,232,.08));-webkit-background-clip:text;background-clip:text;color:transparent}
+.legal{display:flex;justify-content:space-between;gap:20px;padding-top:20px;padding-bottom:24px;color:var(--faint);font-size:13.5px;border-top:1px solid var(--line);margin-top:-1px;position:relative;background:var(--bg)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1024px){
+  .nav-links{display:none}
+  .burger{display:block}
+  .launch-grid{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .launch-copy{text-align:center}.launch-copy h2,.launch-copy p{margin-left:auto;margin-right:auto}
+  .launch-log{justify-self:center;text-align:center;grid-template-columns:repeat(3,auto);gap:36px}
+  .gauge{max-width:520px}
+}
+@media (max-width:767px){
+  body{font-size:16px}
+  .nav .btn{display:none}
+  .hero{align-content:end}
+  .hero-grid{grid-template-columns:1fr;gap:22px}
+  .hero h1{font-size:clamp(3.6rem,19vw,6rem)}
+  .explode{padding-top:92px}
+  .explode-intro{grid-template-columns:1fr;gap:14px}
+  .explode-intro p{display:none}
+  .explode-readout{justify-self:start;text-align:left}
+  .parts{grid-template-columns:1fr}
+  .part{display:none}
+  .part.on{display:block}
+  .stats{grid-template-columns:1fr 1fr;row-gap:26px}
+  .hz-track{height:auto;padding:100px var(--gutter);overflow-x:auto;width:100%;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .hz-intro{width:78vw}
+  .hz-card{scroll-snap-align:center;margin:0!important;align-self:center!important}
+  .hz-card .media{height:auto!important;width:78vw}
+  .hz-card.c1 .media{width:64vw}
+  .hz-card img{width:100%;height:100%}
+  .hz-end{width:60vw}
+  .bento{grid-template-columns:1fr}
+  .b-battery,.b-charge,.b-weight,.b-range,.b-modes{grid-column:span 1;grid-row:span 1}
+  .b-battery .core{min-height:460px}
+  .modes{grid-template-columns:1fr}
+  .mode-tabs{width:100%;justify-content:space-between}
+  .mode-tabs button{padding:10px 12px}
+  .launch-log{grid-template-columns:repeat(3,1fr);gap:16px}
+  .reserve-grid{grid-template-columns:1fr}
+  .reserve-photo .core{min-height:420px}
+  .two{grid-template-columns:1fr}
+  .foot-row{grid-template-columns:1fr 1fr}
+  .foot-row>div:first-child{grid-column:span 2}
+  .legal{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){
+  .manifesto .w{opacity:1}
+  .reveal-media{clip-path:none}
+  .reveal-media img{transform:none}
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body class="is-loading">
+
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<div class="loader" aria-hidden="true">
+  <div class="loader-count display tnum"><span id="lc">000</span><small>%</small></div>
+  <div class="loader-bar"><i></i></div>
+  <div class="loader-meta"><span>VOLT Arc</span><span>Charging</span></div>
+</div>
+
+<header class="nav">
+  <a href="#top" class="brand" aria-label="VOLT home"><span class="brand-mark"></span>VOLT</a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#motor">Motor</a>
+    <a href="#performance">Performance</a>
+    <a href="#ride">Ride</a>
+    <a href="#technology">Technology</a>
+    <span class="nav-glide" aria-hidden="true"></span>
+  </nav>
+  <div class="nav-right">
+    <a href="#reserve" class="btn btn-lime btn-sm">Reserve<span class="ico"><i class="ph-bold ph-arrow-up-right"></i></span></a>
+    <button class="burger" aria-label="Open menu" aria-expanded="false"><i></i><i></i></button>
+  </div>
+</header>
+<div class="menu" aria-hidden="true">
+  <a href="#motor">Motor</a>
+  <a href="#performance">Performance</a>
+  <a href="#ride">Ride</a>
+  <a href="#technology">Technology</a>
+  <a href="#reserve" class="lime">Reserve</a>
+</div>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" aria-label="VOLT Arc">
+    <div class="wrap">
+      <div class="hero-grid">
+        <h1 class="display">
+          <span class="line"><span>Silent.</span></span>
+          <span class="line"><span class="lime">Violent.</span></span>
+        </h1>
+        <div class="hero-side">
+          <p class="hero-sub"><strong>The VOLT Arc.</strong> 204 horsepower, 2.4 seconds to 100, and nothing to hear but the wind.</p>
+          <div class="hero-ctas">
+            <a href="#reserve" class="btn btn-lime">Reserve<span class="ico"><i class="ph-bold ph-arrow-up-right"></i></span></a>
+            <a href="#motor" class="btn btn-ghost">Explore the motor<span class="ico"><i class="ph-light ph-arrow-down"></i></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLODED MOTOR -->
+  <section class="explode" id="motor" aria-label="The motor">
+    <div class="wrap explode-intro">
+      <div>
+        <span class="eyebrow"><i class="ph-bold ph-lightning"></i>Axial-flux drivetrain</span>
+        <h2 class="display">The engine is a dinner plate.</h2>
+        <p>9.1 kg of motor sits inside the rear wheel. No chain, no gearbox, no clutch. Scroll to take it apart.</p>
+      </div>
+      <div class="explode-readout">
+        <b class="tnum" id="torque">0</b>
+        <span>Nm at the wheel</span>
+      </div>
+    </div>
+    <div></div>
+    <div class="wrap parts">
+      <div class="part" data-i="0"><h3><i class="ph-light ph-disc"></i>Brake</h3><p>330 mm steel rotor. Regeneration handles most of the stopping before it is ever touched.</p></div>
+      <div class="part" data-i="1"><h3><i class="ph-light ph-magnet"></i>Twin rotors</h3><p>64 neodymium magnets set in carbon sleeves, spinning either side of the stator.</p></div>
+      <div class="part" data-i="2"><h3><i class="ph-light ph-cpu"></i>Stator</h3><p>18 concentrated copper windings, cooled directly by oil for full power on lap after lap.</p></div>
+      <div class="part" data-i="3"><h3><i class="ph-light ph-tire"></i>Carbon wheel</h3><p>A one-piece carbon disc that weighs 1.9 kg and carries the motor in its hub.</p></div>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="solid manifesto" id="manifesto" aria-label="Philosophy">
+    <div class="wrap">
+      <p id="mtext">We started with one rule. If it does not make you faster, <span class="pill-img" style="background-image:url(assets/tunnel.webp)" role="img" aria-label="Arc riding through a tunnel"></span> it does not ship. So there is no exhaust, no gearbox, no clutch. Just a battery that is also the frame, <span class="pill-img" style="background-image:url(assets/battery.webp)" role="img" aria-label="Battery cells"></span> a motor inside the wheel, and 240 Nm the instant you ask for it.</p>
+    </div>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="reveal" id="performance" aria-label="Performance">
+    <div class="reveal-media"><img src="assets/hero-bike.webp" alt="VOLT Arc in side profile, matte carbon bodywork with a lime light line"></div>
+    <div class="reveal-inner">
+      <div class="wrap"><h2 class="display reveal-title"><span class="line"><span>Meet</span></span><span class="line"><span>the Arc.</span></span></h2></div>
+      <div class="wrap stats">
+        <div class="stat"><b class="tnum"><span data-to="2.4" data-dec="1">0.0</span><sup>s</sup></b><span>0 to 100 km/h</span></div>
+        <div class="stat"><b class="tnum"><span data-to="290">0</span><sup>km/h</sup></b><span>Top speed, limited</span></div>
+        <div class="stat"><b class="tnum"><span data-to="204">0</span><sup>hp</sup></b><span>Peak output, 150 kW</span></div>
+        <div class="stat"><b class="tnum"><span data-to="189">0</span><sup>kg</sup></b><span>Ready to ride</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HORIZONTAL GALLERY -->
+  <section class="hz" id="ride" aria-label="Ride">
+    <div class="hz-track">
+      <div class="hz-intro">
+        <h2 class="display">Built for the hours other people sleep through.</h2>
+        <p>Tunnels, empty ring roads, a track day that runs past sunset. The Arc is at its best when the world goes quiet.</p>
+      </div>
+      <figure class="hz-card c1">
+        <div class="media"><img src="assets/rider.webp" alt="Rider in black leathers holding a helmet beside the Arc in a concrete garage" loading="lazy"></div>
+        <figcaption><strong>Garage, 23:40</strong><span>Suit up</span></figcaption>
+      </figure>
+      <figure class="hz-card c2">
+        <div class="media"><img src="assets/tunnel.webp" alt="The Arc at speed through a lit tunnel on a wet road" loading="lazy"></div>
+        <figcaption><strong>The tunnel run</strong><span>Wet asphalt, full regen</span></figcaption>
+      </figure>
+      <figure class="hz-card c3">
+        <div class="media"><img src="assets/cockpit.webp" alt="Rider view of the Arc cockpit with a lime gauge and city lights ahead" loading="lazy"></div>
+        <figcaption><strong>Cockpit</strong><span>One gauge, nothing else</span></figcaption>
+      </figure>
+      <figure class="hz-card c4">
+        <div class="media"><img src="assets/track.webp" alt="The Arc leaning into a corner on a race track at dusk" loading="lazy"></div>
+        <figcaption><strong>Track mode</strong><span>58 degrees of lean</span></figcaption>
+      </figure>
+      <div class="hz-end">
+        <b>58°</b>
+        <span>Maximum lean angle, with cornering ABS and traction control watching every millisecond.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENTO -->
+  <section class="solid tech" id="technology" aria-label="Technology">
+    <div class="wrap">
+      <div class="tech-head">
+        <h2 class="display">Engineered around the battery, not the other way round.</h2>
+      </div>
+      <div class="bento">
+        <div class="shell b-battery">
+          <div class="core">
+            <img src="assets/battery.webp" alt="Cutaway of the structural battery pack with copper busbars" loading="lazy">
+            <div class="txt">
+              <div class="card-title">21.5 kWh. And it holds the bike together.</div>
+              <p class="card-body">The pack is a stressed member of the chassis. Removing the old frame saved 11 kg and dropped the center of mass by 40 mm.</p>
+            </div>
+          </div>
+        </div>
+        <div class="shell b-charge">
+          <div class="core" id="charge">
+            <div class="charge-top">
+              <div>
+                <div class="card-title">Coffee stop charging</div>
+                <p class="card-body">150 kW DC fast charge on any CCS2 station.</p>
+              </div>
+              <div class="big-num tnum"><span id="chg">10</span><small>%</small></div>
+            </div>
+            <div class="segs" id="segs" aria-hidden="true"></div>
+            <div class="charge-meta tnum"><span>10 to 80 percent</span><span><span id="chgt">0</span> min</span></div>
+          </div>
+        </div>
+        <div class="shell b-weight">
+          <div class="core">
+            <i class="ph-light ph-feather card-ico"></i>
+            <div><div class="big-num tnum">189<small>kg</small></div><p class="card-body">Wet weight with the full battery on board.</p></div>
+          </div>
+        </div>
+        <div class="shell b-range">
+          <div class="core">
+            <i class="ph-light ph-path card-ico"></i>
+            <div><div class="big-num tnum">340<small>km</small></div><p class="card-body">City range. Expect 210 km of mixed riding.</p></div>
+          </div>
+        </div>
+        <div class="shell b-modes">
+          <div class="core">
+            <div class="modes">
+              <div style="display:flex;flex-direction:column">
+                <div class="card-title">Three characters. One switch.</div>
+                <p class="card-body" id="mode-desc">Rounded throttle, high traction control. For cold mornings and wet roads.</p>
+                <div class="mode-tabs" role="tablist" aria-label="Ride mode">
+                  <button role="tab" aria-selected="true" data-mode="rain"><i class="ph-light ph-cloud-rain"></i>Rain</button>
+                  <button role="tab" aria-selected="false" data-mode="road"><i class="ph-light ph-road-horizon"></i>Road</button>
+                  <button role="tab" aria-selected="false" data-mode="track"><i class="ph-light ph-flag-checkered"></i>Track</button>
+                </div>
+                <div class="mode-stats tnum">
+                  <div><b id="ms-p">82</b><span>kW peak</span></div>
+                  <div><b id="ms-r">High</b><span>Regen</span></div>
+                  <div><b id="ms-t">8</b><span>Traction level</span></div>
+                </div>
+              </div>
+              <div class="curve-wrap"><canvas id="curve" aria-label="Torque curve for the selected mode" role="img"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="solid marquee" aria-hidden="true">
+    <div class="marquee-track" id="mq">
+      <span>Silent <em>/</em> Violent <em>/</em> Electric <em>/</em></span>
+      <span>Silent <em>/</em> Violent <em>/</em> Electric <em>/</em></span>
+    </div>
+  </div>
+
+  <!-- LAUNCH CONTROL -->
+  <section class="solid launch" aria-label="Launch control">
+    <div class="launch-streaks" id="streaks"></div>
+    <div class="launch-streaks l2" id="streaks2"></div>
+    <div class="wrap launch-grid">
+      <div class="launch-copy">
+        <span class="eyebrow"><i class="ph-bold ph-gauge"></i>Launch control</span>
+        <h2 class="display">Hold to launch.</h2>
+        <p>Press and hold the button, or the space bar. Let go whenever your nerve runs out.</p>
+      </div>
+      <div class="gauge" id="gaugeWrap">
+        <canvas id="gauge" aria-hidden="true"></canvas>
+        <div class="gauge-read"><b class="tnum" id="spd">0</b><span>km/h</span></div>
+        <button class="hold" id="hold" aria-label="Hold to launch">Hold</button>
+      </div>
+      <div class="launch-log tnum" aria-live="polite">
+        <div><b id="lt">0.00</b><span>Seconds held</span></div>
+        <div id="hit"><b id="l100">--</b><span>0 to 100 km/h</span></div>
+        <div><b id="lmax">0</b><span>Best speed</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVE -->
+  <section class="solid reserve" id="reserve" aria-label="Reserve">
+    <div class="wrap reserve-grid">
+      <div class="shell reserve-photo"><div class="core"><img src="assets/rider.webp" alt="Rider standing beside the Arc at night" loading="lazy"></div></div>
+      <div class="shell reserve-form"><div class="core" id="rcore">
+        <h2 class="display">Reserve yours.</h2>
+        <div class="price"><b class="tnum">€38,900</b><span>on the road, EU spec</span></div>
+        <p class="lead">A €500 deposit holds your build slot. It is fully refundable until production starts in spring 2027.</p>
+        <form id="rform" novalidate>
+          <div class="two">
+            <div class="field"><label for="f-name">Full name</label><input id="f-name" name="name" autocomplete="name" placeholder="Mira Kovács"><span class="err" id="e-name"></span></div>
+            <div class="field"><label for="f-country">Country</label>
+              <select id="f-country" name="country"><option>Hungary</option><option>Austria</option><option>Germany</option><option>Italy</option><option>Netherlands</option><option>United Kingdom</option></select><span class="err"></span>
+            </div>
+          </div>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" placeholder="mira@example.com" aria-describedby="e-email"><span class="err" id="e-email"></span></div>
+          <div class="form-foot">
+            <small>We will email a secure payment link. Nothing is charged today.</small>
+            <button type="submit" class="btn btn-lime" id="rbtn"><span id="rlabel">Reserve</span><span class="ico"><i class="ph-bold ph-arrow-up-right"></i></span></button>
+          </div>
+        </form>
+        <div class="success" role="status">
+          <i class="ph-light ph-check-circle"></i>
+          <h3>Your slot is held.</h3>
+          <p>Check your inbox for the payment link. We will share build updates as your Arc moves down the line.</p>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <footer class="solid">
+    <div class="wrap foot-row">
+      <div>
+        <a href="#top" class="brand" style="margin-bottom:14px"><span class="brand-mark"></span>VOLT</a>
+        <p>Electric motorcycles designed and built in Győr. Test rides open in March 2027.</p>
+      </div>
+      <div><h4>Bike</h4><ul><li><a href="#motor">Motor</a></li><li><a href="#performance">Performance</a></li><li><a href="#technology">Technology</a></li></ul></div>
+      <div><h4>Owners</h4><ul><li><a href="#">Charging map</a></li><li><a href="#">Service</a></li><li><a href="#">Track days</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#">Press</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li></ul></div>
+    </div>
+    <div class="wordmark" aria-hidden="true"><span>V</span><span>O</span><span>L</span><span>T</span></div>
+    <div class="wrap legal"><span>© 2026 VOLT Motors. Design concept, not a real product.</span><span>Figures are target specifications.</span></div>
+  </footer>
+</main>
+
+<script>
+/* Failsafe: never leave the loader stuck if a script fails */
+setTimeout(function(){var l=document.querySelector('.loader');if(l){l.remove();document.body.classList.remove('is-loading');}},7000);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* ---------- Motor model (inlined so file:// works) ---------- */
+
+// All dimensions share a one-metre display radius; the assembly axis is Z.
+const TAU = Math.PI * 2;
+const axis = geometry => { geometry.rotateX(Math.PI / 2); return geometry; };
+
+function annulus(inner, outer, depth, material, segments = 128) {
+  const profile = [[inner,-depth/2],[outer,-depth/2],[outer,depth/2],[inner,depth/2],[inner,-depth/2]];
+  return new THREE.Mesh(axis(new THREE.LatheGeometry(profile.map(p=>new THREE.Vector2(...p)),segments)),material);
+}
+function sector(inner, outer, start, end, depth, material, bevel=.002) {
+  const s = new THREE.Shape();
+  s.absarc(0,0,outer,start,end,false);
+  s.absarc(0,0,inner,end,start,true); s.closePath();
+  const g = new THREE.ExtrudeGeometry(s,{depth,bevelEnabled:bevel>0,bevelSize:bevel,bevelThickness:bevel,bevelSegments:2,curveSegments:16});
+  g.translate(0,0,-depth/2);
+  return new THREE.Mesh(g,material);
+}
+function roundedShape(w,h,r) {
+  const s=new THREE.Shape(), x=-w/2,y=-h/2;
+  s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);
+  s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);
+  s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s;
+}
+function block(w,h,d,r,material) {
+  const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSize:.003,bevelThickness:.003,bevelSegments:3,curveSegments:8});
+  g.translate(0,0,-d/2);return new THREE.Mesh(g,material);
+}
+function circularInstances(group,geometry,material,count,radius,z,phase=0) {
+  const mesh=new THREE.InstancedMesh(geometry,material,count), t=new THREE.Object3D();
+  for(let i=0;i<count;i++) {const a=TAU*i/count+phase;t.position.set(Math.cos(a)*radius,Math.sin(a)*radius,z);t.rotation.set(0,0,a);t.updateMatrix();mesh.setMatrixAt(i,t.matrix);}
+  group.add(mesh);return mesh;
+}
+function fasteners(group,count,radius,z,M,phase=0,size=.012) {
+  circularInstances(group,axis(new THREE.CylinderGeometry(size*1.45,size*1.45,.006,24)),M.steel,count,radius,z,phase);
+  circularInstances(group,axis(new THREE.CylinderGeometry(size,size,.014,6)),M.titanium,count,radius,z+.007,phase);
+  circularInstances(group,axis(new THREE.CylinderGeometry(size*.44,size*.44,.001,6)),M.recess,count,radius,z+.0145,phase);
+}
+function surfaceTexture(kind) {
+  const c=document.createElement('canvas');c.width=1024;c.height=512;
+  const g=c.getContext('2d');
+  if(kind==='rubber') {
+    g.fillStyle='#aaaaaa';g.fillRect(0,0,1024,512);
+    // Lathe U runs around the wheel; V follows its rounded cross-section.
+    for(let i=-1;i<44;i++) for(const side of [-1,1]) {
+      const x=i*25+(side===1?9:0);
+      g.strokeStyle='#333';g.lineWidth=3;g.lineCap='round';g.beginPath();
+      g.moveTo(x,side===1?18:494);g.bezierCurveTo(x+12,side===1?38:474,x+22,side===1?65:447,x+24,side===1?92:420);g.stroke();
+    }
+    const pixels=g.getImageData(0,0,1024,512);
+    let seed=91;
+    for(let i=0;i<pixels.data.length;i+=4){seed=(seed*1664525+1013904223)>>>0;const n=(seed/4294967296-.5)*9;for(let j=0;j<3;j++)pixels.data[i+j]+=n;}
+    g.putImageData(pixels,0,0);
+  } else {
+    g.fillStyle='#2a2e32';g.fillRect(0,0,1024,512);
+    for(let y=0;y<512;y+=8)for(let x=0;x<1024;x+=8){
+      const horizontal=((x/8+y/8)%4)<2;
+      const gr=horizontal?g.createLinearGradient(x,y,x,y+8):g.createLinearGradient(x,y,x+8,y);
+      gr.addColorStop(0,'#14171a');gr.addColorStop(.5,'#5c646a');gr.addColorStop(1,'#1b1e21');g.fillStyle=gr;g.fillRect(x,y,8,8);
+      g.strokeStyle='rgba(140,150,155,.12)';g.lineWidth=.4;
+      for(let k=2;k<8;k+=2){g.beginPath();g.moveTo(x+(horizontal?0:k),y+(horizontal?k:0));g.lineTo(x+(horizontal?8:k),y+(horizontal?k:8));g.stroke();}
+    }
+  }
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
+  if(kind==='carbon')t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+function sidewall() {
+  const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');
+  g.translate(512,512);g.fillStyle='#777a78';g.font='500 21px sans-serif';g.textAlign='center';
+  function label(text,start,spacing,r){for(let i=0;i<text.length;i++){g.save();g.rotate(start+(i-text.length/2)*spacing);g.fillText(text[i],0,-r);g.restore();}}
+  label('VOLT  /  ARC',-.55,.036,462);label('190 / 55 ZR 17   ·   RADIAL',2.25,.027,462);
+  g.strokeStyle='#454747';g.lineWidth=1.5;for(const r of [442,487]){g.beginPath();g.arc(0,0,r,0,TAU);g.stroke();}
+  const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;
+  return new THREE.Mesh(new THREE.PlaneGeometry(2.04,2.04),new THREE.MeshStandardMaterial({map,transparent:true,roughness:.95,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));
+}
+
+function machinedFinish() {
+  const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');
+  g.fillStyle='#969696';g.fillRect(0,0,1024,1024);
+  for(let r=1;r<724;r++){
+    const v=105+Math.round(48*(.5+.5*Math.sin(r*7.13)));
+    g.strokeStyle=`rgb(${v},${v},${v})`;g.lineWidth=.55;g.beginPath();g.arc(512,512,r,0,TAU);g.stroke();
+  }
+  const texture=new THREE.CanvasTexture(c);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+  texture.repeat.set(.72,.72);texture.offset.set(.5,.5);texture.anisotropy=8;return texture;
+}
+
+function createMotor(scene) {
+  const carbon=surfaceTexture('carbon'), rubber=surfaceTexture('rubber');
+  carbon.repeat.set(1,1);
+  const M={
+    carbon:new THREE.MeshPhysicalMaterial({map:carbon,color:0xc3cad1,metalness:.25,roughness:.4,clearcoat:1,clearcoatRoughness:.06}),
+    tire:new THREE.MeshStandardMaterial({color:0x16191c,roughness:.78,bumpMap:rubber,bumpScale:.014}),
+    steel:new THREE.MeshStandardMaterial({color:0x737c84,metalness:1,roughness:.5,roughnessMap:machinedFinish(),envMapIntensity:.75}),
+    titanium:new THREE.MeshStandardMaterial({color:0x858e93,metalness:1,roughness:.26}),
+    dark:new THREE.MeshStandardMaterial({color:0x242b30,metalness:.85,roughness:.32}),
+    recess:new THREE.MeshStandardMaterial({color:0x06080a,metalness:.25,roughness:.65}),
+    copper:new THREE.MeshStandardMaterial({color:0xc26a38,metalness:1,roughness:.2,envMapIntensity:1.35}),
+    insulation:new THREE.MeshStandardMaterial({color:0x1d1f22,roughness:.55,metalness:.4}),
+    gold:new THREE.MeshStandardMaterial({color:0x99815a,metalness:.85,roughness:.32}),
+    magnet:new THREE.MeshStandardMaterial({color:0x8a9298,metalness:1,roughness:.24,envMapIntensity:.7}),
+    magnetB:new THREE.MeshStandardMaterial({color:0x6a7278,metalness:1,roughness:.3,envMapIntensity:.7}),
+    lime:new THREE.MeshStandardMaterial({color:0x9ccc00,emissive:0xC6FF00,emissiveIntensity:.55,metalness:.2,roughness:.4}),
+    limeLine:new THREE.MeshBasicMaterial({color:0xC6FF00,toneMapped:false}),
+  };
+  const wheel=new THREE.Group();scene.add(wheel);const parts=[];
+  function addPart(obj,z0,z1,delay,spins=true,out=null){obj.position.z=z0;wheel.add(obj);parts.push({obj,z0,z1,delay,spins,out,base:obj.position.clone()});return obj;}
+  function ring(group,inner,outer,depth,z,material){const m=annulus(inner,outer,depth,material);m.position.z=z;group.add(m);return m;}
+
+  // Rounded sport tyre: shoulders, bead seats, sidewall lettering and recessed sipes.
+  const tyre=new THREE.Group();const profile=[];
+  for(let i=0;i<=64;i++){const a=i/64*TAU;profile.push(new THREE.Vector2(.904+.126*Math.cos(a),.205*Math.sign(Math.sin(a))*Math.pow(Math.abs(Math.sin(a)),.7)));}
+  const tyreGeo=axis(new THREE.LatheGeometry(profile,400));
+  const position=tyreGeo.attributes.position;
+  for(let i=0;i<position.count;i++){
+    const x=position.getX(i),y=position.getY(i),z=position.getZ(i),r=Math.hypot(x,y);
+    if(r>.953&&Math.abs(z)>.023&&Math.abs(z)<.179){
+      const phase=(Math.atan2(y,x)/TAU*40+Math.abs(z)*8+(z>0?.37:0));
+      const d=Math.abs(phase-Math.round(phase));
+      const taper=Math.min(1,(Math.abs(z)-.023)/.018,(.179-Math.abs(z))/.016);
+      const cut=.009*Math.max(0,1-d/.115)*taper;
+      position.setXY(i,x*(r-cut)/r,y*(r-cut)/r);
+    }
+  }
+  tyreGeo.computeVertexNormals();
+  tyre.add(new THREE.Mesh(tyreGeo,M.tire));
+  const letters=sidewall();letters.position.z=.2055;tyre.add(letters);
+  for(const z of [-.171,.171])ring(tyre,.784,.801,.022,z,M.recess);
+  addPart(tyre,0,-2.24,.37);
+
+  // Carbon monocoque wheel, rolled rim lips and a dished hub.
+  const rim=new THREE.Group();
+  const dish=[[.105,-.066],[.17,-.074],[.28,-.046],[.58,-.031],[.773,-.08],[.789,-.147],[.811,-.155],[.814,-.142],[.799,-.123],[.794,.123],[.814,.142],[.811,.155],[.789,.147],[.773,.08],[.58,.031],[.28,.046],[.17,.074],[.105,.066],[.105,-.066]];
+  const rimGeo=axis(new THREE.LatheGeometry(dish.map(p=>new THREE.Vector2(...p)),160));
+  {const P=rimGeo.attributes.position,U=rimGeo.attributes.uv,k=.62;
+   for(let i=0;i<P.count;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),r=Math.hypot(x,y);
+     if(r<.77)U.setXY(i,x*k+.5,y*k*2+.5);else U.setXY(i,Math.atan2(y,x)/TAU*5.1,z*k*2);}
+   U.needsUpdate=true;}
+  rim.add(new THREE.Mesh(rimGeo,M.carbon));
+  for(const z of [-.153,.153]){
+    ring(rim,.79,.809,.008,z,M.dark);
+    ring(rim,.8095,.8135,.004,z+(z>0?.003:-.003),M.limeLine);
+    // Three short painted registration accents instead of luminous circles.
+    for(let i=0;i<3;i++){const stripe=sector(.799,.805,i*TAU/3,i*TAU/3+.28,.001,M.lime,0);stripe.position.z=z+(z>0?.006:-.006);rim.add(stripe);}
+  }
+  ring(rim,.09,.177,.16,0,M.dark);ring(rim,.092,.135,.176,0,M.steel);
+  fasteners(rim,8,.157,.09,M,Math.PI/8,.011);
+  const valve=new THREE.Mesh(axis(new THREE.CylinderGeometry(.012,.014,.068,12)),M.dark);valve.position.set(.70,.27,.17);rim.add(valve);
+  addPart(rim,0,-1.49,.29);
+
+  // 32 separate wedge magnets per rotor, in a machined retaining cassette.
+  function rotor(front){
+    const group=new THREE.Group();
+    ring(group,.112,.517,.033,0,M.dark);ring(group,.49,.52,.013,.023,M.titanium);
+    ring(group,.112,.21,.026,.027,M.titanium);
+    for(let i=0;i<32;i++){
+      const a=i*TAU/32;
+      const magnet=sector(.273,.474,a+.012,a+TAU/32-.012,.023,i%2?M.magnet:M.magnetB);
+      magnet.position.z=.029;group.add(magnet);
+      const marking=sector(.482,.49,a+.04,a+.105,.001,i%2?M.dark:M.lime,0);marking.position.z=.032;group.add(marking);
+    }
+    fasteners(group,12,.503,.033,M,0,.008);
+    fasteners(group,6,.163,.047,M,0,.01);
+    // Radial machining reliefs on the back remain visible in the assembled view.
+    for(let i=0;i<12;i++){const rib=sector(.22,.48,i*TAU/12+.045,i*TAU/12+.075,.008,M.titanium,0);rib.position.z=-.022;group.add(rib);}
+    if(front) group.rotation.y=Math.PI;
+    return group;
+  }
+  const frontRotor=rotor(true);frontRotor.userData.revealFace=true;
+  frontRotor.userData.internal=true;addPart(frontRotor,.079,.79,.11);
+  const rearRotor=rotor(false);rearRotor.userData.internal=true;addPart(rearRotor,-.079,-.76,.20);
+
+  // Stationary carrier with eighteen individually wound, insulated copper coils.
+  const stator=new THREE.Group();
+  ring(stator,.113,.247,.094,0,M.dark);ring(stator,.468,.505,.08,0,M.dark);
+  ring(stator,.486,.511,.014,.052,M.titanium);ring(stator,.486,.511,.014,-.052,M.titanium);
+  const coreGeo=block(.158,.074,.09,.01,M.dark).geometry;
+  circularInstances(stator,coreGeo,M.insulation,18,.357,0);
+  // Each coil is real wire: rounded-rectangle tube turns, two layers deep, stacked along the axis.
+  const turnGeo=layer=>{
+    const pts=roundedShape(.166+layer*.024,.074+layer*.02,.024+layer*.01).getPoints(10).map(p=>new THREE.Vector3(p.x,p.y,0));
+    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true,'centripetal'),40,.0062,5,true);
+  };
+  const dummy=new THREE.Object3D();let coils;
+  for(let layer=0;layer<2;layer++){
+    const turns=layer?8:9;
+    coils=new THREE.InstancedMesh(turnGeo(layer),M.copper,18*turns);
+    for(let i=0;i<18;i++)for(let j=0;j<turns;j++){const a=i/18*TAU;dummy.position.set(Math.cos(a)*.357,Math.sin(a)*.357,(j-(turns-1)/2)*.0118+(layer?.0059:0));dummy.rotation.set(0,0,a);dummy.updateMatrix();coils.setMatrixAt(i*turns+j,dummy.matrix);}
+    stator.add(coils);
+  }
+fasteners(stator,9,.491,.065,M,0,.008);
+  // Laminated tooth ends are visible through the winding apertures.
+  for(let z=-.043;z<.049;z+=.008)circularInstances(stator,new THREE.BoxGeometry(.12,.045,.002),M.steel,18,.357,z);
+  ring(stator,.052,.112,.29,0,M.titanium);ring(stator,.055,.094,.022,.159,M.steel);
+  ring(stator,.057,.069,.024,.175,M.recess);
+  // Three phase terminals, insulated feedthroughs and curved copper conductors.
+  for(let i=0;i<3;i++){
+    const x=(i-1)*.075;
+    const terminal=block(.048,.084,.048,.008,M.insulation);terminal.position.set(x,.526,0);stator.add(terminal);
+    const path=new THREE.CatmullRomCurve3([new THREE.Vector3(x,.46,.01),new THREE.Vector3(x,.53,.025),new THREE.Vector3(x,.585,.055)]);
+    stator.add(new THREE.Mesh(new THREE.TubeGeometry(path,12,.009,8,false),M.copper));
+  }
+  const glow=new THREE.PointLight(0xe2d3b8,0,1.2,2);stator.add(glow);
+  stator.userData.internal=true;addPart(stator,0,.02,.15,false);
+
+  // Floating steel brake disc: true drilled holes, scalloped edge, carrier and bobbins.
+  const brake=new THREE.Group(),s=new THREE.Shape();
+  for(let i=0;i<=240;i++){const a=i/240*TAU,r=.662+.006*Math.cos(a*12);const x=Math.cos(a)*r,y=Math.sin(a)*r;i?s.lineTo(x,y):s.moveTo(x,y);}s.closePath();
+  const inner=new THREE.Path();inner.absarc(0,0,.467,0,TAU,true);s.holes.push(inner);
+  for(let i=0;i<36;i++)for(let j=0;j<3;j++){const a=i/36*TAU+j*.022,r=.509+j*.054;const h=new THREE.Path();h.absarc(Math.cos(a)*r,Math.sin(a)*r,.0085,0,TAU,true);s.holes.push(h);}
+  const brakeGeo=new THREE.ExtrudeGeometry(s,{depth:.015,bevelEnabled:true,bevelSize:.001,bevelThickness:.001,bevelSegments:1,curveSegments:36});brakeGeo.translate(0,0,-.0075);
+  brake.add(new THREE.Mesh(brakeGeo,M.steel));
+  ring(brake,.104,.185,.034,0,M.dark);
+  for(let i=0;i<9;i++){
+    const a=i/9*TAU;const carrier=new THREE.Shape();
+    carrier.moveTo(.15,-.037);carrier.lineTo(.33,-.023);carrier.lineTo(.472,.012);carrier.lineTo(.494,.046);carrier.lineTo(.46,.071);carrier.lineTo(.30,.035);carrier.lineTo(.15,.025);carrier.closePath();
+    const g=new THREE.ExtrudeGeometry(carrier,{depth:.022,bevelEnabled:true,bevelSize:.004,bevelThickness:.003,bevelSegments:2});g.translate(0,0,-.011);
+    const arm=new THREE.Mesh(g,M.dark);arm.rotation.z=a;brake.add(arm);
+  }
+  circularInstances(brake,axis(new THREE.CylinderGeometry(.025,.025,.025,24)),M.gold,9,.478,.014,.08);
+  circularInstances(brake,axis(new THREE.CylinderGeometry(.011,.011,.027,16)),M.recess,9,.478,.015,.08);
+  fasteners(brake,6,.145,.028,M,0,.01);
+  // Concentric surface finishing marks catch the studio light without fake glow.
+  for(const r of [.484,.647])ring(brake,r,r+.0015,.0006,.009,M.titanium);
+  ring(brake,.054,.102,.048,.026,M.steel);ring(brake,.055,.067,.052,.027,M.recess);
+  addPart(brake,.222,1.65,0);
+
+  // Opposed-piston caliper: two cast halves, pad gap, bridge bolts and bleed nipple.
+  const caliper=new THREE.Group(),body=new THREE.Group();
+  for(const z of [-.048,.048]){
+    const half=block(.32,.131,.049,.032,M.gold);half.position.z=z;body.add(half);
+    for(const x of [-.088,.088]){const dome=new THREE.Mesh(axis(new THREE.CylinderGeometry(.047,.055,.018,32)),M.gold);dome.position.set(x,0,z+(z>0?.034:-.034));body.add(dome);}
+    const pad=block(.24,.092,.012,.013,M.recess);pad.position.set(0,-.014,z>0?.017:-.017);body.add(pad);
+  }
+  for(const x of [-.127,.127]){
+    const bridge=block(.037,.075,.137,.01,M.gold);bridge.position.set(x,.041,0);body.add(bridge);
+    const bolt=new THREE.Mesh(axis(new THREE.CylinderGeometry(.015,.015,.008,6)),M.steel);bolt.position.set(x,.041,.076);body.add(bolt);
+  }
+  for(let i=0;i<4;i++){const slot=block(.014,.073,.002,.004,M.recess);slot.position.set((i-1.5)*.043,0,.075);body.add(slot);}
+  const a=.63;body.position.set(Math.cos(a)*.625,Math.sin(a)*.625,0);body.rotation.z=a+Math.PI/2;caliper.add(body);
+  const hoseCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(.40,.47,-.02),new THREE.Vector3(.36,.61,-.045),new THREE.Vector3(.27,.67,-.09)]);
+  caliper.add(new THREE.Mesh(new THREE.TubeGeometry(hoseCurve,20,.012,8,false),M.recess));
+  addPart(caliper,.222,1.65,0,false,new THREE.Vector3(.12,.13,0));
+  // Batch fixed details per moving assembly; winding and bolt arrays stay instanced.
+  // This keeps the exploded animation independent without hundreds of draw calls.
+  wheel.updateMatrixWorld(true);
+  for(const part of parts){
+    const batches=new Map(), inverse=part.obj.matrixWorld.clone().invert(), originals=[];
+    part.obj.traverse(obj=>{
+      if(!obj.isMesh||obj.isInstancedMesh||obj.material.transparent)return;
+      const geometry=obj.geometry.index?obj.geometry.toNonIndexed():obj.geometry.clone();
+      geometry.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse,obj.matrixWorld));
+      if(!batches.has(obj.material))batches.set(obj.material,[]);
+      batches.get(obj.material).push(geometry);originals.push(obj);
+    });
+    for(const obj of originals)obj.removeFromParent();
+    for(const [material,geometries] of batches){
+      const combined=mergeGeometries(geometries,false);
+      if(combined)part.obj.add(new THREE.Mesh(combined,material));
+      geometries.forEach(g=>g.dispose());
+    }
+  }
+  wheel.traverse(obj=>{if(obj.isMesh&&!obj.material.transparent){obj.castShadow=!(obj.isInstancedMesh&&obj.material===M.copper);obj.receiveShadow=true;}});
+  return {wheel,parts,glow};
+}
+
+
+gsap.registerPlugin(ScrollTrigger);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobile = () => innerWidth < 768;
+const LIME = 0xC6FF00;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const smooth = t => t * t * (3 - 2 * t);
+
+/* ---------- Smooth scroll ---------- */
+let lenis = null;
+if (!reduce) {
+  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+  lenis.stop();
+}
+document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+  const id = a.getAttribute('href');
+  if (id.length < 2) return;
+  const el = document.querySelector(id);
+  if (!el) return;
+  e.preventDefault();
+  document.body.classList.remove('menu-open');
+  burger.setAttribute('aria-expanded', 'false');
+  lenis ? lenis.scrollTo(el, { duration: 1.6 }) : el.scrollIntoView();
+}));
+
+/* ---------- Menu ---------- */
+const burger = document.querySelector('.burger');
+burger.addEventListener('click', () => {
+  const open = document.body.classList.toggle('menu-open');
+  burger.setAttribute('aria-expanded', String(open));
+  document.querySelector('.menu').setAttribute('aria-hidden', String(!open));
+});
+
+
+/* ---------- Nav hover glide ---------- */
+{
+  const nl = document.querySelector('.nav-links'), glide = nl.querySelector('.nav-glide');
+  // GSAP quickTo retargets mid-flight without restarting, so sweeping across links stays fluid
+  const qx = gsap.quickTo(glide, 'x', { duration: .5, ease: 'expo.out' });
+  const qw = gsap.quickTo(glide, 'width', { duration: .5, ease: 'expo.out' });
+  const move = (a, instant) => {
+    if (instant) { gsap.set(glide, { x: a.offsetLeft, width: a.offsetWidth }); qx(a.offsetLeft, a.offsetLeft); qw(a.offsetWidth, a.offsetWidth); }
+    else { qx(a.offsetLeft); qw(a.offsetWidth); }
+    nl.classList.add('has-glide');
+  };
+  nl.querySelectorAll('a').forEach(a => {
+    a.addEventListener('pointerenter', () => move(a, !nl.classList.contains('has-glide')));
+    a.addEventListener('focus', () => move(a, !nl.classList.contains('has-glide')));
+  });
+  nl.addEventListener('pointerleave', () => nl.classList.remove('has-glide'));
+  nl.addEventListener('focusout', e => { if (!nl.contains(e.relatedTarget)) nl.classList.remove('has-glide'); });
+}
+
+/* =========================================================
+   3D: axial-flux hub motor + carbon wheel, built in code
+   ========================================================= */
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+// Perf: cap DPR at 1.5; adaptive quality may lower it further on slow GPUs
+const DPR_MAX = Math.min(devicePixelRatio, 1.5);
+let dpr = DPR_MAX;
+renderer.setPixelRatio(dpr);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.autoUpdate = false;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+const studio = new THREE.Scene();
+studio.background = new THREE.Color(0x39414b);
+function softbox(w, h, x, y, z, intensity, color) {
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({color, side:THREE.DoubleSide}));
+  panel.material.color.multiplyScalar(intensity);
+  panel.position.set(x,y,z); panel.lookAt(0,0,0); studio.add(panel);
+}
+softbox(3, 7, -4, 3, 5, 5, 0xfff4e6);
+softbox(1.4, 6, 4, 1, 2, 3, 0xd8e7ff);
+softbox(5, 2, 0, 5, -1, 4, 0xffffff);
+softbox(2, 4, -3, 0, -4, 2, 0xe4edff);
+softbox(2, 9, -6, 1, 0, 1.8, 0xffffff);
+softbox(6, 5, 0, 1, 7, .65, 0xf1f4f8);
+const studioMap = pmrem.fromScene(studio, .035);
+scene.environment = studioMap.texture;
+scene.environmentIntensity = .85;
+studio.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose();}});
+pmrem.dispose();
+
+const camera = new THREE.PerspectiveCamera(24, 1, 0.1, 100);
+camera.position.set(0, 0, 9.4);
+
+const key = new THREE.DirectionalLight(0xfff3df, 3.5); key.position.set(-3, 4, 5); scene.add(key);
+const rim = new THREE.DirectionalLight(0xd2e1f2, 3.0); rim.position.set(5, 1.5, -4); scene.add(rim);
+const back = new THREE.DirectionalLight(0xe6ecf5, 2.0); back.position.set(-2, -3, -5); scene.add(back);
+const limeRim = new THREE.DirectionalLight(LIME, .9); limeRim.position.set(3, -.5, -7); scene.add(limeRim);
+
+key.castShadow = true;
+key.shadow.mapSize.set(isMobile() ? 1024 : 2048, isMobile() ? 1024 : 2048);
+Object.assign(key.shadow.camera, {left:-3.5,right:3.5,top:3.5,bottom:-3.5,near:.1,far:18});
+key.shadow.normalBias = .009;
+key.shadow.bias = -.00015;
+key.shadow.radius = 3;
+const { wheel, parts, glow } = createMotor(scene);
+
+// Speed lines
+const LN = 90;
+const lpos = new Float32Array(LN * 6), lcol = new Float32Array(LN * 6), lspd = new Float32Array(LN);
+for (let i = 0; i < LN; i++) {
+  const x = (Math.random() - .5) * 18, y = (Math.random() - .5) * 9, z = -2 - Math.random() * 7, len = .3 + Math.random() * 1.6;
+  lpos.set([x, y, z, x + len, y, z], i * 6);
+  const lime = Math.random() < .22, b = .25 + Math.random() * .5;
+  const c = lime ? [.78 * b * 1.6, b * 1.6, 0] : [b, b, b];
+  lcol.set([...c, 0, 0, 0], i * 6);
+  lspd[i] = .6 + Math.random() * 1.4;
+}
+const lgeo = new THREE.BufferGeometry();
+lgeo.setAttribute('position', new THREE.BufferAttribute(lpos, 3));
+lgeo.setAttribute('color', new THREE.BufferAttribute(lcol, 3));
+const lines = new THREE.LineSegments(lgeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false }));
+scene.add(lines);
+
+// Stage state, driven by GSAP
+const P = {
+  hero: () => isMobile() ? { x: 0, y: 0.95, s: 0.66, rotY: -0.38 } : { x: 1.6, y: 0.5, s: 1.08, rotY: -0.42 },
+  ex: () => isMobile() ? { x: -0.12, y: -0.14, s: 0.4, rotY: -0.72 } : { x: 0, y: -0.12, s: 0.90, rotY: -0.67 },
+};
+const S = { ...P.hero(), explode: 0, opacity: 1, intro: reduce ? 1 : 0 };
+const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+addEventListener('pointermove', e => { mouse.tx = e.clientX / innerWidth * 2 - 1; mouse.ty = -(e.clientY / innerHeight * 2 - 1); }, { passive: true });
+
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+resize(); addEventListener('resize', resize);
+
+let spin = 0, last = performance.now(), frameNo = 0, lastExplode = -1, slowAcc = 0, lastDprChange = 0;
+let running = true, scrollIdleAt = 0, curDpr = dpr;
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  canvas.style.opacity = S.opacity;
+  // Canvas fully faded out: stop the loop entirely until it is needed again
+  if (S.opacity <= 0.01) { running = false; canvas.style.visibility = 'hidden'; return; }
+  {
+    mouse.x += (mouse.tx - mouse.x) * .05; mouse.y += (mouse.ty - mouse.y) * .05;
+    const vel = lenis ? Math.abs(lenis.velocity) : 0;
+    const introBoost = (1 - S.intro) * 16;
+    const spinSpeed = (.24 + Math.min(vel * .018, .8) + introBoost * .25) * Math.pow(1 - S.explode, 3);
+    spin -= spinSpeed * dt * (reduce ? 0 : 1);
+
+    const s = S.s * (0.78 + 0.22 * smooth(S.intro));
+    wheel.scale.setScalar(s);
+    wheel.position.set(S.x + mouse.x * .07, S.y + mouse.y * .05, 0);
+    wheel.rotation.y = S.rotY + mouse.x * .065 - S.explode * .15;
+    wheel.rotation.x = .08 - mouse.y * .045 + S.explode * .12;
+
+    for (const p of parts) {
+      const k = smooth(clamp((S.explode - p.delay) / .62, 0, 1));
+      p.obj.position.z = p.z0 + (p.z1 - p.z0) * k;
+      if (p.out) { p.obj.position.x = p.out.x * k; p.obj.position.y = p.out.y * k; }
+      if (p.spins) p.obj.rotation.z = spin;
+      if (p.obj.userData.revealFace) p.obj.rotation.y = Math.PI * (1 - k);
+    }
+
+    const ls = (1.2 + Math.min(vel * .25, 14) + introBoost * 1.5) * (reduce ? 0 : 1);
+    for (let i = 0; i < LN; i++) {
+      const o = i * 6, d = ls * lspd[i] * dt;
+      lpos[o] -= d; lpos[o + 3] -= d;
+      if (lpos[o + 3] < -9) { const len = lpos[o + 3] - lpos[o]; lpos[o] = 9; lpos[o + 3] = 9 + len; }
+    }
+    lgeo.attributes.position.needsUpdate = true;
+    lines.material.opacity = .10 * (1 - S.explode);
+    glow.intensity = S.explode * .10;
+    // Internals sit inside the closed wheel: skip drawing them until it opens
+    const open = S.explode > .015;
+    for (const p of parts) if (p.obj.userData.internal) p.obj.visible = open;
+    // Shadows are expensive: refresh every third frame, or every frame while parts move
+    frameNo++;
+    const moving = Math.abs(S.explode - lastExplode) > 1e-4; lastExplode = S.explode;
+    // Closed wheel: shadows are barely visible, so the shadow pass runs only twice a second
+    if (moving || frameNo % (open ? 3 : 30) === 0) renderer.shadowMap.needsUpdate = true;
+    // Lower resolution while scrolling, full resolution once the page settles
+    if (vel > .4) scrollIdleAt = now + 220;
+    const want = now < scrollIdleAt ? Math.min(1, dpr) : dpr;
+    if (want !== curDpr) { curDpr = want; renderer.setPixelRatio(want); resize(); }
+    renderer.render(scene, camera);
+    // Adaptive resolution: drop DPR if frames are consistently slow
+    slowAcc = slowAcc * .95 + (dt > .024 ? 1 : 0) * .05;
+    if (slowAcc > .6 && dpr > 1 && now - lastDprChange > 1500) {
+      dpr = Math.max(1, dpr - .25); lastDprChange = now; slowAcc = 0;
+    }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+// Restart the loop when the canvas fades back in (scrolling back up)
+gsap.ticker.add(() => {
+  if (!running && S.opacity > 0.01) { running = true; canvas.style.visibility = ''; last = performance.now(); requestAnimationFrame(frame); }
+});
+
+/* =========================================================
+   Loader + intro
+   ========================================================= */
+const loader = document.querySelector('.loader');
+const heroLines = gsap.utils.toArray('.hero h1 .line > span');
+function intro() {
+  document.body.classList.remove('is-loading');
+  lenis && lenis.start();
+  if (reduce) { loader.remove(); S.intro = 1; return; }
+  const tl = gsap.timeline();
+  tl.to(loader, { yPercent: -100, duration: 1.1, ease: 'expo.inOut', onComplete: () => loader.remove() })
+    .to(S, { intro: 1, duration: 2.4, ease: 'expo.out' }, .35)
+    .from(heroLines, { yPercent: 115, duration: 1.2, ease: 'expo.out', stagger: .09 }, .55)
+    .from('.hero-side > *', { y: 30, opacity: 0, filter: 'blur(8px)', duration: 1, ease: 'expo.out', stagger: .08 }, .8)
+    .from('.nav > *', { y: -20, opacity: 0, duration: .9, ease: 'expo.out', stagger: .06 }, .7);
+}
+if (reduce) { intro(); }
+else {
+  const lc = document.getElementById('lc');
+  const bar = document.querySelector('.loader-bar i');
+  const ld = { v: 0 };
+  const loaded = new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r));
+  gsap.to(ld, {
+    v: 100, duration: 1.8, ease: 'power2.inOut',
+    onUpdate: () => { lc.textContent = String(Math.round(ld.v)).padStart(3, '0'); bar.style.transform = `scaleX(${ld.v / 100})`; },
+    onComplete: () => loaded.then(intro),
+  });
+}
+
+/* =========================================================
+   Scroll choreography
+   ========================================================= */
+// Hero -> exploded stage
+gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1, invalidateOnRefresh: true } })
+  .to(S, { x: () => P.ex().x, y: () => P.ex().y, s: () => P.ex().s, rotY: () => P.ex().rotY, ease: 'none' })
+  .to('.hero .wrap', { yPercent: -18, opacity: 0, ease: 'none' }, 0);
+
+// Pinned explode
+const partEls = gsap.utils.toArray('.part');
+const torqueEl = document.getElementById('torque');
+let activePart = -1;
+function setPart(p) {
+  const i = p < .02 ? -1 : Math.min(3, Math.floor(p * 4.2));
+  if (i === activePart) return;
+  activePart = i;
+  partEls.forEach((el, j) => el.classList.toggle('on', j <= i && (isMobile() ? j === i : true)));
+}
+gsap.to(S, {
+  explode: 1, ease: 'none',
+  scrollTrigger: {
+    trigger: '.explode', start: 'top top', end: () => '+=' + innerHeight * (reduce ? 1 : 2.6), pin: true, scrub: 1,
+    onUpdate: self => { setPart(self.progress); torqueEl.textContent = Math.round(240 * smooth(self.progress)); },
+  },
+});
+gsap.from('.explode-intro > *', { y: 40, opacity: 0, stagger: .1, ease: 'expo.out', duration: 1, scrollTrigger: { trigger: '.explode', start: 'top 70%' } });
+
+// Fade the 3D stage out as the solid sections arrive
+gsap.timeline({ scrollTrigger: { trigger: '#manifesto', start: 'top bottom', end: 'top 25%', scrub: true } })
+  .to(S, { y: '+=2.6', ease: 'none' })
+  .to(S, { opacity: 0, ease: 'power1.in' }, 0);
+
+// Manifesto word scrub
+{
+  const p = document.getElementById('mtext');
+  const walk = n => {
+    [...n.childNodes].forEach(c => {
+      if (c.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(t => {
+          if (!t) return;
+          if (/^\s+$/.test(t)) frag.append(t);
+          else { const s = document.createElement('span'); s.className = 'w'; s.textContent = t; frag.append(s); }
+        });
+        c.replaceWith(frag);
+      } else if (c.classList && c.classList.contains('pill-img')) c.classList.add('w');
+    });
+  };
+  walk(p);
+  if (!reduce) gsap.to('#mtext .w', { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: '#mtext', start: 'top 78%', end: 'bottom 45%', scrub: true } });
+}
+
+// Reveal (clip-path expands, numbers roll with scroll)
+if (!reduce) {
+  const nums = gsap.utils.toArray('.stat [data-to]');
+  const counter = { k: 0 };
+  gsap.timeline({ scrollTrigger: { trigger: '.reveal', start: 'top top', end: () => '+=' + innerHeight * 1.6, pin: true, scrub: 1 } })
+    .to('.reveal-media', { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'none', duration: 1 })
+    .to('.reveal-media img', { scale: 1, ease: 'none', duration: 1 }, 0)
+    .from('.reveal-title .line > span', { yPercent: 115, stagger: .08, duration: .35, ease: 'power3.out' }, .55)
+    .from('.stat', { y: 50, opacity: 0, stagger: .06, duration: .35, ease: 'power3.out' }, .7)
+    .to(counter, {
+      k: 1, duration: .55, ease: 'power2.out',
+      onUpdate: () => nums.forEach(n => { const v = +n.dataset.to * counter.k; n.textContent = v.toFixed(+n.dataset.dec || 0); }),
+    }, .75)
+    .to({}, { duration: .25 });
+} else {
+  document.querySelectorAll('.stat [data-to]').forEach(n => n.textContent = (+n.dataset.to).toFixed(+n.dataset.dec || 0));
+}
+
+// Horizontal gallery (desktop only; mobile uses native scroll-snap)
+const mm = gsap.matchMedia();
+mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
+  const track = document.querySelector('.hz-track');
+  const dist = () => track.scrollWidth - innerWidth;
+  const pan = gsap.to(track, {
+    x: () => -dist(), ease: 'none',
+    scrollTrigger: { trigger: '.hz', start: 'top top', end: () => '+=' + dist(), pin: true, scrub: 1, invalidateOnRefresh: true },
+  });
+  gsap.utils.toArray('.hz-card').forEach(card => {
+    gsap.fromTo(card.querySelector('img'), { xPercent: -12 }, {
+      xPercent: 0, ease: 'none',
+      scrollTrigger: { trigger: card, containerAnimation: pan, start: 'left right', end: 'right left', scrub: true },
+    });
+    gsap.from(card, { opacity: .2, scale: .92, ease: 'none', scrollTrigger: { trigger: card, containerAnimation: pan, start: 'left 95%', end: 'left 55%', scrub: true } });
+  });
+});
+
+// Generic entrance reveals
+if (!reduce) {
+  gsap.utils.toArray('.tech-head, .shell, .launch-copy, .launch-log, .foot-row > div').forEach(el => {
+    gsap.from(el, { y: 64, opacity: 0, filter: 'blur(10px)', duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
+  });
+  gsap.from('.wordmark span', { yPercent: 100, stagger: .07, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '.wordmark', start: 'top 95%' } });
+}
+
+/* ---------- Marquee (velocity reactive) ---------- */
+{
+  const mq = document.getElementById('mq');
+  let x = 0, dir = -1;
+  if (!reduce) gsap.ticker.add((t, dtms) => {
+    const v = lenis ? lenis.velocity : 0;
+    if (Math.abs(v) > .5) dir = v > 0 ? -1 : 1;
+    x += dir * (0.6 + Math.min(Math.abs(v) * .35, 12)) * (dtms / 16.67);
+    const w = mq.scrollWidth / 2;
+    if (x < -w) x += w; if (x > 0) x -= w;
+    mq.style.transform = `translate3d(${x}px,0,0)`;
+  });
+}
+
+/* ---------- Charging segments ---------- */
+{
+  const segs = document.getElementById('segs');
+  for (let i = 0; i < 20; i++) segs.append(document.createElement('i'));
+  const cells = [...segs.children];
+  const chg = document.getElementById('chg'), chgt = document.getElementById('chgt');
+  const paint = pct => cells.forEach((c, i) => {
+    const edge = (i + 1) * 5;
+    c.classList.toggle('pre', edge <= 10);
+    c.classList.toggle('on', edge > 10 && edge <= pct);
+  });
+  paint(10);
+  const st = { p: 10 };
+  ScrollTrigger.create({
+    trigger: '#charge', start: 'top 75%', once: true,
+    onEnter: () => gsap.to(st, {
+      p: 80, duration: reduce ? 0 : 2.6, ease: 'power2.inOut', delay: .3,
+      onUpdate: () => { const p = Math.round(st.p); chg.textContent = p; chgt.textContent = Math.round((st.p - 10) / 70 * 19); paint(p); },
+    }),
+  });
+}
+
+/* ---------- Ride modes torque curve ---------- */
+{
+  const MODES = {
+    rain: { peak: .55, ramp: 1700, p: '82', r: 'High', t: '8', d: 'Rounded throttle, high traction control. For cold mornings and wet roads.' },
+    road: { peak: .8, ramp: 700, p: '118', r: 'Medium', t: '5', d: 'Full torque with a measured first inch of throttle. The everyday setting.' },
+    track: { peak: 1, ramp: 160, p: '150', r: 'Low', t: '2', d: 'Everything, immediately. Light regen so the bike flows into corners.' },
+  };
+  const cv = document.getElementById('curve'), ctx = cv.getContext('2d');
+  const cur = { peak: MODES.rain.peak, ramp: MODES.rain.ramp };
+  const torque = (rpm, m) => {
+    const base = 4200;
+    const t = rpm < base ? 1 : base / rpm;
+    return m.peak * t * (1 - Math.exp(-rpm / m.ramp));
+  };
+  function draw() {
+    const dpr = Math.min(devicePixelRatio, 2), w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== w * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const pad = { l: 24, r: 24, t: 28, b: 36 };
+    const W = w - pad.l - pad.r, H = h - pad.t - pad.b;
+    ctx.strokeStyle = 'rgba(237,237,232,.06)'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) { const y = pad.t + H * i / 4; ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + W, y); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(237,237,232,.5)'; ctx.font = '500 12px Satoshi, sans-serif';
+    ctx.fillText('Torque', pad.l, pad.t - 10);
+    ctx.textAlign = 'right'; ctx.fillText('Motor speed', pad.l + W, h - 12); ctx.textAlign = 'left';
+    ctx.beginPath();
+    for (let i = 0; i <= 200; i++) {
+      const rpm = i / 200 * 14000, x = pad.l + W * i / 200, y = pad.t + H * (1 - torque(rpm, cur));
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.save();
+    ctx.lineTo(pad.l + W, pad.t + H); ctx.lineTo(pad.l, pad.t + H); ctx.closePath();
+    const gr = ctx.createLinearGradient(0, pad.t, 0, pad.t + H);
+    gr.addColorStop(0, 'rgba(198,255,0,.28)'); gr.addColorStop(1, 'rgba(198,255,0,0)');
+    ctx.fillStyle = gr; ctx.fill(); ctx.restore();
+    ctx.beginPath();
+    for (let i = 0; i <= 200; i++) {
+      const rpm = i / 200 * 14000, x = pad.l + W * i / 200, y = pad.t + H * (1 - torque(rpm, cur));
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.strokeStyle = '#C6FF00'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+  }
+  draw();
+  addEventListener('resize', draw);
+  document.fonts && document.fonts.ready.then(draw);
+  const tabs = document.querySelectorAll('.mode-tabs button');
+  tabs.forEach(b => b.addEventListener('click', () => {
+    const m = MODES[b.dataset.mode];
+    tabs.forEach(t => t.setAttribute('aria-selected', String(t === b)));
+    gsap.to(cur, { peak: m.peak, ramp: m.ramp, duration: reduce ? 0 : .9, ease: 'expo.out', onUpdate: draw });
+    document.getElementById('ms-p').textContent = m.p;
+    document.getElementById('ms-r').textContent = m.r;
+    document.getElementById('ms-t').textContent = m.t;
+    document.getElementById('mode-desc').textContent = m.d;
+  }));
+}
+
+/* ---------- Launch control ---------- */
+{
+  const cv = document.getElementById('gauge'), ctx = cv.getContext('2d');
+  const wrap = document.getElementById('gaugeWrap');
+  const btn = document.getElementById('hold');
+  const spd = document.getElementById('spd'), lt = document.getElementById('lt'), l100 = document.getElementById('l100'), lmax = document.getElementById('lmax'), hit = document.getElementById('hit');
+  const st1 = document.getElementById('streaks'), st2 = document.getElementById('streaks2');
+  const VMAX = 290, TAU = 5.67;
+  let v = 0, t = 0, holding = false, running = false, hit100 = false, best = 0, prev = 0, off1 = 0, off2 = 0;
+
+  function drawGauge() {
+    const dpr = Math.min(devicePixelRatio, 2), w = cv.clientWidth;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = cv.height = Math.round(w * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, w);
+    const c = w / 2, R = w * .44, a0 = Math.PI * .75, sweep = Math.PI * 1.5;
+    for (let k = 0; k <= 30; k++) {
+      const a = a0 + sweep * k / 30, major = k % 5 === 0, lit = k / 30 <= v / 300;
+      const r1 = R - (major ? 22 : 12), r2 = R - 4;
+      ctx.beginPath(); ctx.moveTo(c + Math.cos(a) * r1, c + Math.sin(a) * r1); ctx.lineTo(c + Math.cos(a) * r2, c + Math.sin(a) * r2);
+      ctx.strokeStyle = lit ? '#C6FF00' : 'rgba(237,237,232,' + (major ? .42 : .16) + ')';
+      ctx.lineWidth = major ? 2.2 : 1.4; ctx.stroke();
+      if (major) {
+        ctx.fillStyle = lit ? '#C6FF00' : 'rgba(237,237,232,.45)';
+        ctx.font = '500 ' + Math.max(11, w * .026) + 'px Satoshi, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(k * 10, c + Math.cos(a) * (R - 42), c + Math.sin(a) * (R - 42));
+      }
+    }
+    ctx.beginPath(); ctx.arc(c, c, R + 10, a0, a0 + sweep); ctx.strokeStyle = 'rgba(237,237,232,.07)'; ctx.lineWidth = 1; ctx.stroke();
+    if (v > 0.2) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(c, c, R + 10, a0, a0 + sweep * Math.min(v / 300, 1));
+      ctx.strokeStyle = '#C6FF00'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(198,255,0,.6)'; ctx.shadowBlur = 14 * (v / 300); ctx.stroke();
+      ctx.restore();
+    }
+  }
+  drawGauge();
+  addEventListener('resize', drawGauge);
+  document.fonts && document.fonts.ready.then(drawGauge);
+
+  function step(now) {
+    const dt = Math.min(.05, (now - prev) / 1000); prev = now;
+    if (holding) {
+      t += dt; v = VMAX * (1 - Math.exp(-t / TAU));
+      if (!hit100 && v >= 100) { hit100 = true; l100.textContent = t.toFixed(2); hit.classList.add('hit'); }
+    } else {
+      v = Math.max(0, v - dt * 140);
+      t = v > 0 ? -TAU * Math.log(1 - v / VMAX) : 0;
+      if (v === 0) hit100 = false;
+    }
+    best = Math.max(best, v);
+    spd.textContent = Math.round(v); lt.textContent = (holding ? t : 0).toFixed(2); lmax.textContent = Math.round(best);
+    const k = v / VMAX;
+    document.documentElement.style.setProperty('--speed', k.toFixed(3));
+    off1 -= (40 + v * 14) * dt; off2 -= (20 + v * 7) * dt;
+    st1.style.backgroundPosition = `${off1}px 0, ${off1 * .6}px 0`;
+    st2.style.backgroundPosition = `${off2}px 0, ${off2 * 1.4}px 0`;
+    if (!reduce) wrap.style.transform = k > .05 ? `translate(${(Math.random() - .5) * 3 * k}px,${(Math.random() - .5) * 3 * k}px)` : '';
+    drawGauge();
+    if (holding || v > 0) requestAnimationFrame(step); else { running = false; wrap.style.transform = ''; }
+  }
+  function start() {
+    holding = true; btn.classList.add('down');
+    if (!hit100) { hit.classList.remove('hit'); }
+    if (!running) { running = true; prev = performance.now(); requestAnimationFrame(step); }
+  }
+  function stop() { holding = false; btn.classList.remove('down'); }
+  btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.setPointerCapture(e.pointerId); start(); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => btn.addEventListener(ev, stop));
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+  const launchSec = document.querySelector('.launch');
+  let inView = false;
+  new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (!inView) stop(); }, { threshold: .35 }).observe(launchSec);
+  addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if ((e.code === 'Space' && inView && tag !== 'input' && tag !== 'select' && tag !== 'textarea') || (e.code === 'Enter' && e.target === btn)) {
+      e.preventDefault(); if (!e.repeat) start();
+    }
+  });
+  addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'Enter') stop(); });
+}
+
+/* ---------- Reserve form ---------- dont put anything here righ now */
+{
+  const form = document.getElementById('rform'), core = document.getElementById('rcore');
+  const btn = document.getElementById('rbtn'), label = document.getElementById('rlabel');
+  const name = document.getElementById('f-name'), email = document.getElementById('f-email');
+  const setErr = (input, msg) => {
+    const f = input.closest('.field'); f.classList.toggle('invalid', !!msg);
+    f.querySelector('.err').textContent = msg || '';
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  };
+  [name, email].forEach(i => i.addEventListener('input', () => setErr(i, '')));
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    let ok = true;
+    if (name.value.trim().length < 2) { setErr(name, 'Please enter your full name.'); ok = false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) { setErr(email, 'That email address does not look right.'); ok = false; }
+    if (!ok) { (form.querySelector('[aria-invalid="true"]') || name).focus(); return; }
+    btn.disabled = true; btn.classList.add('loading'); label.textContent = 'Holding your slot';
+    setTimeout(() => {
+      core.classList.add('done');
+      gsap.from('.success > *', { y: 24, opacity: 0, stagger: .08, duration: .9, ease: 'expo.out' });
+    }, 1400);
+  });
+}
+
+addEventListener('load', () => ScrollTrigger.refresh());
+</script>
+</body>
+</html>
