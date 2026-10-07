@@ -144,3 +144,4 @@ Text-only communication (Discord, Telegram, email or X), fixed quotes, weekly pr
 <p align="center"><sub>Keywords: free landing page template, dark landing page template, product launch page, HTML GSAP template, Three.js landing page, Lenis smooth scroll, electric motorcycle website template, EV landing page, pre-order page template, MIT website template.</sub></p>
 
 <!-- update: v1 -->
+<!-- update: v2 -->
