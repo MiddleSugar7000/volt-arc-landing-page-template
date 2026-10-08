@@ -145,3 +145,4 @@ Text-only communication (Discord, Telegram, email or X), fixed quotes, weekly pr
 
 <!-- update: v1 -->
 <!-- update: v2 -->
+<!-- sync: 2026-10-08-r1 -->
