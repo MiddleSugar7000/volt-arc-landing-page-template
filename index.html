@@ -869,10 +869,12 @@ function createMotor(scene) {
   function ring(group,inner,outer,depth,z,material){const m=annulus(inner,outer,depth,material);m.position.z=z;group.add(m);return m;}
 
   // Rounded sport tyre: shoulders, bead seats, sidewall lettering and recessed sipes.
+  // Profile points define a high-performance 190/55 ZR 17 superellipse cross-section.
   const tyre=new THREE.Group();const profile=[];
   for(let i=0;i<=64;i++){const a=i/64*TAU;profile.push(new THREE.Vector2(.904+.126*Math.cos(a),.205*Math.sign(Math.sin(a))*Math.pow(Math.abs(Math.sin(a)),.7)));}
   const tyreGeo=axis(new THREE.LatheGeometry(profile,400));
   const position=tyreGeo.attributes.position;
+  // Algorithmic vertex displacement: carve 40 angled drainage sipes into the rubber contact shoulder
   for(let i=0;i<position.count;i++){
     const x=position.getX(i),y=position.getY(i),z=position.getZ(i),r=Math.hypot(x,y);
     if(r>.953&&Math.abs(z)>.023&&Math.abs(z)<.179){
