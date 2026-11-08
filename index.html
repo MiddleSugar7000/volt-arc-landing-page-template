@@ -802,6 +802,11 @@ function surfaceTexture(kind) {
   if(kind==='carbon')t.colorSpace=THREE.SRGBColorSpace;
   return t;
 }
+/**
+ * Renders high-precision tire sidewall branding and specification text projected onto a circular plane.
+ * Utilizes polar text transformations to map glyphs along tire circumference radii.
+ * @returns {THREE.Mesh} Transparent decal mesh mapped to tire sidewall
+ */
 function sidewall() {
   const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');
   g.translate(512,512);g.fillStyle='#777a78';g.font='500 21px sans-serif';g.textAlign='center';
@@ -812,9 +817,15 @@ function sidewall() {
   return new THREE.Mesh(new THREE.PlaneGeometry(2.04,2.04),new THREE.MeshStandardMaterial({map,transparent:true,roughness:.95,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));
 }
 
+/**
+ * Procedurally computes concentric CNC lathe machining marks for metallic components.
+ * Produces subtle radial circular brush lines that scatter specular reflections realistically.
+ * @returns {THREE.CanvasTexture} Radial roughness map texture
+ */
 function machinedFinish() {
   const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');
   g.fillStyle='#969696';g.fillRect(0,0,1024,1024);
+  // High-frequency harmonic oscillation in concentric circular arcs
   for(let r=1;r<724;r++){
     const v=105+Math.round(48*(.5+.5*Math.sin(r*7.13)));
     g.strokeStyle=`rgb(${v},${v},${v})`;g.lineWidth=.55;g.beginPath();g.arc(512,512,r,0,TAU);g.stroke();
