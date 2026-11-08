@@ -1150,7 +1150,7 @@ key.shadow.bias = -.00015;
 key.shadow.radius = 3;
 const { wheel, parts, glow } = createMotor(scene);
 
-// Speed lines
+// Kinetic speed lines: 90 streaming vector segments creating an illusion of high-velocity forward transit
 const LN = 90;
 const lpos = new Float32Array(LN * 6), lcol = new Float32Array(LN * 6), lspd = new Float32Array(LN);
 for (let i = 0; i < LN; i++) {
@@ -1167,7 +1167,7 @@ lgeo.setAttribute('color', new THREE.BufferAttribute(lcol, 3));
 const lines = new THREE.LineSegments(lgeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false }));
 scene.add(lines);
 
-// Stage state, driven by GSAP
+// Stage coordinates and camera target poses calibrated separately for desktop viewports and mobile screens
 const P = {
   hero: () => isMobile() ? { x: 0, y: 0.95, s: 0.66, rotY: -0.38 } : { x: 1.6, y: 0.5, s: 1.08, rotY: -0.42 },
   ex: () => isMobile() ? { x: -0.12, y: -0.14, s: 0.4, rotY: -0.72 } : { x: 0, y: -0.12, s: 0.90, rotY: -0.67 },
