@@ -660,12 +660,39 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // All dimensions share a one-metre display radius; the assembly axis is Z.
 const TAU = Math.PI * 2;
+
+/**
+ * Reorients procedural geometry from the default Y-up Lathe orientation to align along the Z assembly axis.
+ * @param {THREE.BufferGeometry} geometry - Target buffer geometry
+ * @returns {THREE.BufferGeometry} Reoriented geometry rotated around X axis
+ */
 const axis = geometry => { geometry.rotateX(Math.PI / 2); return geometry; };
 
+/**
+ * Generates an extruded hollow cylindrical ring (annulus) revolved around the assembly axis.
+ * @param {number} inner - Inner cylinder radius
+ * @param {number} outer - Outer cylinder radius
+ * @param {number} depth - Thickness along the axial direction
+ * @param {THREE.Material} material - Surface shader material
+ * @param {number} [segments=128] - Radial tessellation subdivisions
+ * @returns {THREE.Mesh} Annulus mesh
+ */
 function annulus(inner, outer, depth, material, segments = 128) {
   const profile = [[inner,-depth/2],[outer,-depth/2],[outer,depth/2],[inner,depth/2],[inner,-depth/2]];
   return new THREE.Mesh(axis(new THREE.LatheGeometry(profile.map(p=>new THREE.Vector2(...p)),segments)),material);
 }
+
+/**
+ * Generates a beveled cylindrical sector / wedge slice centered along the Z axis.
+ * @param {number} inner - Inner arc radius
+ * @param {number} outer - Outer arc radius
+ * @param {number} start - Starting angle in radians
+ * @param {number} end - Ending angle in radians
+ * @param {number} depth - Axial extrusion thickness
+ * @param {THREE.Material} material - Mesh material
+ * @param {number} [bevel=.002] - Edge bevel size and thickness
+ * @returns {THREE.Mesh} Extruded sector mesh
+ */
 function sector(inner, outer, start, end, depth, material, bevel=.002) {
   const s = new THREE.Shape();
   s.absarc(0,0,outer,start,end,false);
@@ -674,6 +701,14 @@ function sector(inner, outer, start, end, depth, material, bevel=.002) {
   g.translate(0,0,-depth/2);
   return new THREE.Mesh(g,material);
 }
+
+/**
+ * Constructs a 2D rectangular path with rounded corner fillets.
+ * @param {number} w - Width along the X axis
+ * @param {number} h - Height along the Y axis
+ * @param {number} r - Corner radius
+ * @returns {THREE.Shape} Continuous closed 2D shape with fillets
+ */
 function roundedShape(w,h,r) {
   const s=new THREE.Shape(), x=-w/2,y=-h/2;
   s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);
@@ -681,6 +716,16 @@ function roundedShape(w,h,r) {
   s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);
   s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s;
 }
+
+/**
+ * Creates an extruded 3D solid block with filleted corners and chamfered edges.
+ * @param {number} w - Block width
+ * @param {number} h - Block height
+ * @param {number} d - Block depth
+ * @param {number} r - Corner radius
+ * @param {THREE.Material} material - Surface material
+ * @returns {THREE.Mesh} Centered solid block mesh
+ */
 function block(w,h,d,r,material) {
   const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSize:.003,bevelThickness:.003,bevelSegments:3,curveSegments:8});
   g.translate(0,0,-d/2);return new THREE.Mesh(g,material);
