@@ -1109,6 +1109,10 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
 const pmrem = new THREE.PMREMGenerator(renderer);
+/**
+ * Construct a synthetic automotive photography studio using 6 HDR emissive light panels (softboxes).
+ * The virtual scene is rendered into an equirectangular PMREM cubemap for high-fidelity image-based lighting (IBL).
+ */
 const studio = new THREE.Scene();
 studio.background = new THREE.Color(0x39414b);
 function softbox(w, h, x, y, z, intensity, color) {
@@ -1116,12 +1120,14 @@ function softbox(w, h, x, y, z, intensity, color) {
   panel.material.color.multiplyScalar(intensity);
   panel.position.set(x,y,z); panel.lookAt(0,0,0); studio.add(panel);
 }
+// Softbox configuration: warm key fill, cool rim reflectors, overhead top bank, and floor kickers
 softbox(3, 7, -4, 3, 5, 5, 0xfff4e6);
 softbox(1.4, 6, 4, 1, 2, 3, 0xd8e7ff);
 softbox(5, 2, 0, 5, -1, 4, 0xffffff);
 softbox(2, 4, -3, 0, -4, 2, 0xe4edff);
 softbox(2, 9, -6, 1, 0, 1.8, 0xffffff);
 softbox(6, 5, 0, 1, 7, .65, 0xf1f4f8);
+// Bake pre-filtered roughness mipmaps on the GPU and attach to main scene environment
 const studioMap = pmrem.fromScene(studio, .035);
 scene.environment = studioMap.texture;
 scene.environmentIntensity = .85;
