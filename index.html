@@ -730,11 +730,34 @@ function block(w,h,d,r,material) {
   const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSize:.003,bevelThickness:.003,bevelSegments:3,curveSegments:8});
   g.translate(0,0,-d/2);return new THREE.Mesh(g,material);
 }
+/**
+ * Instantiates and arranges identical geometries in a radial polar pattern (pitch circle diameter).
+ * Transforms are written directly into an InstancedMesh matrix buffer for high-throughput single draw calls.
+ * @param {THREE.Group} group - Parent group to receive the instanced mesh
+ * @param {THREE.BufferGeometry} geometry - Base mesh geometry
+ * @param {THREE.Material} material - Surface material
+ * @param {number} count - Total number of radial instances
+ * @param {number} radius - Pitch circle radius from center
+ * @param {number} z - Axial Z-position offset
+ * @param {number} [phase=0] - Angular phase shift in radians
+ * @returns {THREE.InstancedMesh} Populated instanced mesh
+ */
 function circularInstances(group,geometry,material,count,radius,z,phase=0) {
   const mesh=new THREE.InstancedMesh(geometry,material,count), t=new THREE.Object3D();
   for(let i=0;i<count;i++) {const a=TAU*i/count+phase;t.position.set(Math.cos(a)*radius,Math.sin(a)*radius,z);t.rotation.set(0,0,a);t.updateMatrix();mesh.setMatrixAt(i,t.matrix);}
   group.add(mesh);return mesh;
 }
+
+/**
+ * Assembles a realistic multi-component bolt pattern (steel washer, hexagonal titanium cap, and inner drive recess).
+ * @param {THREE.Group} group - Parent container group
+ * @param {number} count - Bolt count in circumferential array
+ * @param {number} radius - Radial distance from wheel center
+ * @param {number} z - Base axial seating height
+ * @param {Object} M - Material dictionary reference
+ * @param {number} [phase=0] - Rotational angular offset
+ * @param {number} [size=.012] - Bolt head base diameter scale
+ */
 function fasteners(group,count,radius,z,M,phase=0,size=.012) {
   circularInstances(group,axis(new THREE.CylinderGeometry(size*1.45,size*1.45,.006,24)),M.steel,count,radius,z,phase);
   circularInstances(group,axis(new THREE.CylinderGeometry(size,size,.014,6)),M.titanium,count,radius,z+.007,phase);
