@@ -892,9 +892,11 @@ function createMotor(scene) {
   addPart(tyre,0,-2.24,.37);
 
   // Carbon monocoque wheel, rolled rim lips and a dished hub.
+  // Cross-section contour nodes model the central bearing hub, aero disc web, and safety bead seat.
   const rim=new THREE.Group();
   const dish=[[.105,-.066],[.17,-.074],[.28,-.046],[.58,-.031],[.773,-.08],[.789,-.147],[.811,-.155],[.814,-.142],[.799,-.123],[.794,.123],[.814,.142],[.811,.155],[.789,.147],[.773,.08],[.58,.031],[.28,.046],[.17,.074],[.105,.066],[.105,-.066]];
   const rimGeo=axis(new THREE.LatheGeometry(dish.map(p=>new THREE.Vector2(...p)),160));
+  // Dual-mode UV projection: planar mapping across central disc face, cylindrical unwrap around outer rim barrel
   {const P=rimGeo.attributes.position,U=rimGeo.attributes.uv,k=.62;
    for(let i=0;i<P.count;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),r=Math.hypot(x,y);
      if(r<.77)U.setXY(i,x*k+.5,y*k*2+.5);else U.setXY(i,Math.atan2(y,x)/TAU*5.1,z*k*2);}
