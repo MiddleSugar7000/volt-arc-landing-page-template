@@ -972,9 +972,11 @@ fasteners(stator,9,.491,.065,M,0,.008);
   stator.userData.internal=true;addPart(stator,0,.02,.15,false);
 
   // Floating steel brake disc: true drilled holes, scalloped edge, carrier and bobbins.
+  // Friction ring outer diameter features 12-lobed sinusoidal thermal wave scalloping
   const brake=new THREE.Group(),s=new THREE.Shape();
   for(let i=0;i<=240;i++){const a=i/240*TAU,r=.662+.006*Math.cos(a*12);const x=Math.cos(a)*r,y=Math.sin(a)*r;i?s.lineTo(x,y):s.moveTo(x,y);}s.closePath();
   const inner=new THREE.Path();inner.absarc(0,0,.467,0,TAU,true);s.holes.push(inner);
+  // Multi-tier radial cooling hole drill pattern: 36 angular columns x 3 concentric track rings (108 holes)
   for(let i=0;i<36;i++)for(let j=0;j<3;j++){const a=i/36*TAU+j*.022,r=.509+j*.054;const h=new THREE.Path();h.absarc(Math.cos(a)*r,Math.sin(a)*r,.0085,0,TAU,true);s.holes.push(h);}
   const brakeGeo=new THREE.ExtrudeGeometry(s,{depth:.015,bevelEnabled:true,bevelSize:.001,bevelThickness:.001,bevelSegments:1,curveSegments:36});brakeGeo.translate(0,0,-.0075);
   brake.add(new THREE.Mesh(brakeGeo,M.steel));
