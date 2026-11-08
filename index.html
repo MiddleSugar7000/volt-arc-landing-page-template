@@ -1284,7 +1284,7 @@ else {
 /* =========================================================
    Scroll choreography
    ========================================================= */
-// Hero -> exploded stage
+// Smooth transition from hero presentation angle to the pinned technical explosion stage
 gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1, invalidateOnRefresh: true } })
   .to(S, { x: () => P.ex().x, y: () => P.ex().y, s: () => P.ex().s, rotY: () => P.ex().rotY, ease: 'none' })
   .to('.hero .wrap', { yPercent: -18, opacity: 0, ease: 'none' }, 0);
