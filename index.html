@@ -1183,6 +1183,11 @@ function resize() {
 }
 resize(); addEventListener('resize', resize);
 
+/**
+ * Main animation loop running on requestAnimationFrame.
+ * Integrates rotational inertia, mouse parallax damping, exploded view displacement, and adaptive GPU load scaling.
+ * @param {number} now - High-resolution timestamp from performance.now()
+ */
 let spin = 0, last = performance.now(), frameNo = 0, lastExplode = -1, slowAcc = 0, lastDprChange = 0;
 let running = true, scrollIdleAt = 0, curDpr = dpr;
 function frame(now) {
