@@ -763,10 +763,18 @@ function fasteners(group,count,radius,z,M,phase=0,size=.012) {
   circularInstances(group,axis(new THREE.CylinderGeometry(size,size,.014,6)),M.titanium,count,radius,z+.007,phase);
   circularInstances(group,axis(new THREE.CylinderGeometry(size*.44,size*.44,.001,6)),M.recess,count,radius,z+.0145,phase);
 }
+/**
+ * Procedurally generates 1024x512 micro-surface texture maps entirely in memory using HTML5 2D canvas.
+ * - 'rubber': Generates directional tire tread curves and high-frequency tactile grain using a fast Linear Congruential Generator (LCG).
+ * - 'carbon': Synthesizes a woven 2x2 carbon fiber twill pattern with alternating directional anisotropic lighting reflections.
+ * @param {'rubber'|'carbon'} kind - Desired texture profile
+ * @returns {THREE.CanvasTexture} High-resolution procedural texture with anisotropic filtering
+ */
 function surfaceTexture(kind) {
   const c=document.createElement('canvas');c.width=1024;c.height=512;
   const g=c.getContext('2d');
   if(kind==='rubber') {
+    // Base rubber substrate
     g.fillStyle='#aaaaaa';g.fillRect(0,0,1024,512);
     // Lathe U runs around the wheel; V follows its rounded cross-section.
     for(let i=-1;i<44;i++) for(const side of [-1,1]) {
@@ -774,11 +782,13 @@ function surfaceTexture(kind) {
       g.strokeStyle='#333';g.lineWidth=3;g.lineCap='round';g.beginPath();
       g.moveTo(x,side===1?18:494);g.bezierCurveTo(x+12,side===1?38:474,x+22,side===1?65:447,x+24,side===1?92:420);g.stroke();
     }
+    // High-frequency surface roughness synthesized via LCG pseudo-random distribution
     const pixels=g.getImageData(0,0,1024,512);
     let seed=91;
     for(let i=0;i<pixels.data.length;i+=4){seed=(seed*1664525+1013904223)>>>0;const n=(seed/4294967296-.5)*9;for(let j=0;j<3;j++)pixels.data[i+j]+=n;}
     g.putImageData(pixels,0,0);
   } else {
+    // Carbon twill weave pattern: alternating horizontal and vertical directional weave blocks
     g.fillStyle='#2a2e32';g.fillRect(0,0,1024,512);
     for(let y=0;y<512;y+=8)for(let x=0;x<1024;x+=8){
       const horizontal=((x/8+y/8)%4)<2;
