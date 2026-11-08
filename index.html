@@ -936,12 +936,15 @@ function createMotor(scene) {
   const rearRotor=rotor(false);rearRotor.userData.internal=true;addPart(rearRotor,-.079,-.76,.20);
 
   // Stationary carrier with eighteen individually wound, insulated copper coils.
+  // Center-mounted stator core engineered for a dual-rotor axial-flux synchronous machine topology.
   const stator=new THREE.Group();
   ring(stator,.113,.247,.094,0,M.dark);ring(stator,.468,.505,.08,0,M.dark);
   ring(stator,.486,.511,.014,.052,M.titanium);ring(stator,.486,.511,.014,-.052,M.titanium);
+  // 18 insulated core teeth distributed symmetrically around the 357mm pitch radius
   const coreGeo=block(.158,.074,.09,.01,M.dark).geometry;
   circularInstances(stator,coreGeo,M.insulation,18,.357,0);
   // Each coil is real wire: rounded-rectangle tube turns, two layers deep, stacked along the axis.
+  // Helical winding loops modeled as smooth centripetal Catmull-Rom tubular extrusions
   const turnGeo=layer=>{
     const pts=roundedShape(.166+layer*.024,.074+layer*.02,.024+layer*.01).getPoints(10).map(p=>new THREE.Vector3(p.x,p.y,0));
     return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true,'centripetal'),40,.0062,5,true);
