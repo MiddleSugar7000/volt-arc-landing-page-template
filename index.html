@@ -1414,6 +1414,7 @@ if (!reduce) {
 }
 
 /* ---------- Ride modes torque curve ---------- */
+// Interactive dynamometer torque-speed visualization based on constant torque / constant power operational envelopes
 {
   const MODES = {
     rain: { peak: .55, ramp: 1700, p: '82', r: 'High', t: '8', d: 'Rounded throttle, high traction control. For cold mornings and wet roads.' },
@@ -1422,6 +1423,13 @@ if (!reduce) {
   };
   const cv = document.getElementById('curve'), ctx = cv.getContext('2d');
   const cur = { peak: MODES.rain.peak, ramp: MODES.rain.ramp };
+  /**
+   * Computes motor shaft torque at a given RPM:
+   * Flat constant torque until corner base speed (4200 RPM), followed by constant power field-weakening rolloff.
+   * @param {number} rpm - Electric motor rotational velocity
+   * @param {Object} m - Selected active drive mode parameters
+   * @returns {number} Normalized output torque [0, 1]
+   */
   const torque = (rpm, m) => {
     const base = 4200;
     const t = rpm < base ? 1 : base / rpm;
