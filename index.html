@@ -837,18 +837,30 @@ function machinedFinish() {
 function createMotor(scene) {
   const carbon=surfaceTexture('carbon'), rubber=surfaceTexture('rubber');
   carbon.repeat.set(1,1);
+  // Physically-based rendering (PBR) material dictionary configured for industrial hyper-realism
   const M={
+    // High-gloss clearcoated carbon composite monocoque
     carbon:new THREE.MeshPhysicalMaterial({map:carbon,color:0xc3cad1,metalness:.25,roughness:.4,clearcoat:1,clearcoatRoughness:.06}),
+    // Matte vulcanized sport compound rubber with procedural micro-bump relief
     tire:new THREE.MeshStandardMaterial({color:0x16191c,roughness:.78,bumpMap:rubber,bumpScale:.014}),
+    // CNC lathe-turned stainless steel with anisotropic roughness mapping
     steel:new THREE.MeshStandardMaterial({color:0x737c84,metalness:1,roughness:.5,roughnessMap:machinedFinish(),envMapIntensity:.75}),
+    // Grade 5 aerospace titanium alloy (smooth specular sheen)
     titanium:new THREE.MeshStandardMaterial({color:0x858e93,metalness:1,roughness:.26}),
+    // Anodized dark structural casing
     dark:new THREE.MeshStandardMaterial({color:0x242b30,metalness:.85,roughness:.32}),
+    // Non-reflective internal socket recesses and hardware voids
     recess:new THREE.MeshStandardMaterial({color:0x06080a,metalness:.25,roughness:.65}),
+    // Oxygen-free electrolytic copper stator windings
     copper:new THREE.MeshStandardMaterial({color:0xc26a38,metalness:1,roughness:.2,envMapIntensity:1.35}),
+    // High-temperature epoxy dielectric insulation
     insulation:new THREE.MeshStandardMaterial({color:0x1d1f22,roughness:.55,metalness:.4}),
+    // Hard-anodized titanium-nitride caliper coating
     gold:new THREE.MeshStandardMaterial({color:0x99815a,metalness:.85,roughness:.32}),
+    // Sintered neodymium-iron-boron (NdFeB) permanent magnets (North / South pole polarity finishes)
     magnet:new THREE.MeshStandardMaterial({color:0x8a9298,metalness:1,roughness:.24,envMapIntensity:.7}),
     magnetB:new THREE.MeshStandardMaterial({color:0x6a7278,metalness:1,roughness:.3,envMapIntensity:.7}),
+    // Signature brand luminescent lime accents and laser guide lines
     lime:new THREE.MeshStandardMaterial({color:0x9ccc00,emissive:0xC6FF00,emissiveIntensity:.55,metalness:.2,roughness:.4}),
     limeLine:new THREE.MeshBasicMaterial({color:0xC6FF00,toneMapped:false}),
   };
