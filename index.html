@@ -1599,6 +1599,7 @@ if (!reduce) {
     if (!running) { running = true; prev = performance.now(); requestAnimationFrame(step); }
   }
   function stop() { holding = false; btn.classList.remove('down'); }
+  // Pointer capture and multi-input launch trigger handlers (touch, mouse, spacebar, and enter keys)
   btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.setPointerCapture(e.pointerId); start(); });
   ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => btn.addEventListener(ev, stop));
   btn.addEventListener('contextmenu', e => e.preventDefault());
