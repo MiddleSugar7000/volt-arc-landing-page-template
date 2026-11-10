@@ -1324,6 +1324,11 @@ gsap.timeline({ scrollTrigger: { trigger: '#manifesto', start: 'top bottom', end
   .to(S, { opacity: 0, ease: 'power1.in' }, 0);
 
 // Manifesto word scrub
+/**
+ * Recursive text splitting algorithm:
+ * Traverses DOM tree under #mtext, segmenting plain text nodes into individually animated span.w elements
+ * while preserving whitespace boundaries and inline pill image elements (.pill-img).
+ */
 {
   const p = document.getElementById('mtext');
   const walk = n => {
