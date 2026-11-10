@@ -1295,6 +1295,11 @@ gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'botto
   .to('.hero .wrap', { yPercent: -18, opacity: 0, ease: 'none' }, 0);
 
 // Pinned explode
+/**
+ * Component state visualizer:
+ * Calculates normalized scroll progress within the pinned exploded section,
+ * dynamically highlighting the active motor component card (0 to 3) and interpolating torque output to 240 Nm.
+ */
 const partEls = gsap.utils.toArray('.part');
 const torqueEl = document.getElementById('torque');
 let activePart = -1;
