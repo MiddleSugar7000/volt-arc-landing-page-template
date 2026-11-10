@@ -1395,6 +1395,11 @@ mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
 });
 
 // Generic entrance reveals
+/**
+ * Viewport entrance observers:
+ * Batches major section headings, cards, and footers with a soft vertical rise and blur-to-sharp focus transition,
+ * concluding with an upward stagger on the brand wordmark glyphs.
+ */
 if (!reduce) {
   gsap.utils.toArray('.tech-head, .shell, .launch-copy, .launch-log, .foot-row > div').forEach(el => {
     gsap.from(el, { y: 64, opacity: 0, filter: 'blur(10px)', duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
