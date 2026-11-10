@@ -1616,6 +1616,11 @@ if (!reduce) {
 }
 
 /* ---------- Reserve form ---------- dont put anything here righ now */
+/**
+ * Reservation waitlist submission handler:
+ * Validates name length and RFC regex email format, updates accessible aria-invalid states,
+ * and executes a simulated asynchronous booking confirmation with GSAP entry transition.
+ */
 {
   const form = document.getElementById('rform'), core = document.getElementById('rcore');
   const btn = document.getElementById('rbtn'), label = document.getElementById('rlabel');
