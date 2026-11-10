@@ -1372,6 +1372,11 @@ if (!reduce) {
 }
 
 // Horizontal gallery (desktop only; mobile uses native scroll-snap)
+/**
+ * Desktop horizontal pin-and-pan gallery:
+ * Translates track horizontally by (scrollWidth - innerWidth) while driving nested containerAnimation
+ * parallax offsets on internal card images for multi-plane depth.
+ */
 const mm = gsap.matchMedia();
 mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
   const track = document.querySelector('.hz-track');
