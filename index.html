@@ -1349,6 +1349,11 @@ gsap.timeline({ scrollTrigger: { trigger: '#manifesto', start: 'top bottom', end
 }
 
 // Reveal (clip-path expands, numbers roll with scroll)
+/**
+ * Fullscreen visual reveal sequence:
+ * Progressively expands the media container clip-path while scrubbing a synchronized counter tween
+ * that formats numeric data-to attributes into decimal and integer readouts.
+ */
 if (!reduce) {
   const nums = gsap.utils.toArray('.stat [data-to]');
   const counter = { k: 0 };
