@@ -1408,6 +1408,11 @@ if (!reduce) {
 }
 
 /* ---------- Marquee (velocity reactive) ---------- */
+/**
+ * Dynamic marquee ticker:
+ * Seamlessly loops text strip by half-width modulo, accelerating speed and reversing direction
+ * in real-time based on Lenis inertial scroll velocity.
+ */
 {
   const mq = document.getElementById('mq');
   let x = 0, dir = -1;
