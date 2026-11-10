@@ -1565,6 +1565,13 @@ if (!reduce) {
   addEventListener('resize', drawGauge);
   document.fonts && document.fonts.ready.then(drawGauge);
 
+  /**
+   * Continuous Newtonian physics simulation step:
+   * Evaluates exponential acceleration curve v(t) = VMAX * (1 - e^(-t / TAU)),
+   * calculates instantaneous 0-100 km/h split times, manages linear braking deceleration,
+   * and synchronizes peripheral speed line background positions.
+   * @param {number} now - High-resolution timestamp
+   */
   function step(now) {
     const dt = Math.min(.05, (now - prev) / 1000); prev = now;
     if (holding) {
