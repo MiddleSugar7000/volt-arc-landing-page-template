@@ -1427,6 +1427,11 @@ if (!reduce) {
 }
 
 /* ---------- Charging segments ---------- */
+/**
+ * 20-segment high-voltage battery charging simulation:
+ * Renders individual LED charge cells and triggers an ease-in-out progress fill from 10% to 80%
+ * with synchronized time-to-full calculations when scrolled into view.
+ */
 {
   const segs = document.getElementById('segs');
   for (let i = 0; i < 20; i++) segs.append(document.createElement('i'));
