@@ -1529,6 +1529,11 @@ if (!reduce) {
   const VMAX = 290, TAU = 5.67;
   let v = 0, t = 0, holding = false, running = false, hit100 = false, best = 0, prev = 0, off1 = 0, off2 = 0;
 
+  /**
+   * Renders high-DPI polar speedometer gauge dial onto 2D canvas:
+   * Maps 30 radial tick intervals across a 270-degree sweep arc (0.75π to 2.25π),
+   * applying energetic lime illumination and soft glowing shadows up to active vehicle velocity.
+   */
   function drawGauge() {
     const dpr = Math.min(devicePixelRatio, 2), w = cv.clientWidth;
     if (cv.width !== Math.round(w * dpr)) { cv.width = cv.height = Math.round(w * dpr); }
