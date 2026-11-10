@@ -1255,6 +1255,11 @@ gsap.ticker.add(() => {
 /* =========================================================
    Loader + intro
    ========================================================= */
+/**
+ * Orchestrates preloader exit animation and initial page element entrance timeline.
+ * Handles reduced-motion accessibility preference, numerical counter interpolation (0-100),
+ * and dynamic horizontal scaling of the progress bar before revealing the main stage.
+ */
 const loader = document.querySelector('.loader');
 const heroLines = gsap.utils.toArray('.hero h1 .line > span');
 function intro() {
