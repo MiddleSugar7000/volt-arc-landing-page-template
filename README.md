@@ -100,7 +100,7 @@ HTML5 · CSS (custom properties) · JavaScript (ES modules) · [GSAP 3](https://
 ## FAQ
 
 **Is this landing page template really free?**
-Yes. VOLT Arc is released under the MIT license, so you can use it for personal and commercial projects, modify it and ship it. Keeping the license notice is the only requirement.
+Yes. VOLT Arc is released under the permissive MIT license, so you can freely use it for personal and commercial projects, modify it and ship it. Keeping the license notice is the only requirement.
 
 **Do I need React, Next.js or a build tool?**
 No. It's a plain HTML/CSS/JS template. Open `index.html` or host the folder on any static host.
