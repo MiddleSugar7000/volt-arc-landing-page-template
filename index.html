@@ -277,6 +277,7 @@ main{position:relative;z-index:1}
 
 /* ---------- Launch control ---------- */
 .launch{position:relative;padding:clamp(120px,14vw,200px) 0;overflow:hidden;isolation:isolate}
+/* Dynamic peripheral speed streaks driven by CSS variable --speed with radial edge feathering */
 .launch-streaks{position:absolute;inset:0;z-index:-1;opacity:calc(.1 + var(--speed) * .9);
   background:
     repeating-linear-gradient(90deg,transparent 0 140px,rgba(198,255,0,.18) 140px 220px,transparent 220px 420px),
