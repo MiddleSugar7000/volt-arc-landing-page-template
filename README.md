@@ -84,7 +84,7 @@ npx serve .
 
 ## Page sections
 
-1. **Preloader** with a rolling percentage counter
+1. **Preloader** with a rolling percentage counter and Promise-gated asset reveal
 2. **Hero** — "Violent." headline over the hero render
 3. **Motor** — the procedural Three.js axial-flux motor
 4. **Performance** — animated stats (204 hp, 240 Nm, 0–100 km/h)
