@@ -95,7 +95,7 @@ npx serve .
 
 ## Tech stack
 
-HTML5 · CSS (custom properties) · JavaScript (ES modules) · [GSAP 3](https://gsap.com) + ScrollTrigger · [Lenis](https://lenis.darkroom.engineering) · [Three.js](https://threejs.org) · Phosphor Icons · Fontshare fonts. All loaded from CDNs.
+HTML5 · CSS (custom properties) · JavaScript (ES modules) · [GSAP 3](https://gsap.com) + ScrollTrigger · [Lenis](https://lenis.darkroom.engineering) · [Three.js](https://threejs.org) (procedural motor with PMREM environment lighting) · Phosphor Icons · Fontshare fonts. All loaded from CDNs without bundlers.
 
 ## FAQ
 
