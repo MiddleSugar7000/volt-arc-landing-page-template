@@ -47,6 +47,7 @@ Use it for an EV, hardware product, gadget, car, SaaS launch, pre-order or waitl
 <img src=".github/assets/features.svg" alt="Template features: GSAP ScrollTrigger and Lenis smooth scroll, procedural Three.js motor, 6 product renders, no build step, interactive drive modes, MIT license" width="100%">
 
 - **Single HTML file.** All markup, CSS and JS in `index.html`; the 3D motor lives in `assets/motor.js`.
+- **Zero build step.** Pure ESM import map loading Three.js and GSAP directly from verified CDNs.
 - **Smooth, weighted motion.** Lenis smooth scroll, GSAP ScrollTrigger reveals, rolling stat counters and scroll-scrubbed sections.
 - **Procedural 3D.** An axial-flux electric motor built entirely in Three.js code, no 3D model files.
 - **Interactive bits.** Drive-mode switcher (Rain / Road / Track) and a "hold to launch" 0–100 km/h demo.
