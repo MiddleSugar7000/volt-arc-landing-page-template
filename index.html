@@ -121,6 +121,7 @@ main{position:relative;z-index:1}
 }
 .nav-links a{position:relative;z-index:1;padding:9px 16px;border-radius:999px;font-size:14.5px;color:var(--muted);transition:color .45s var(--ease)}
 .nav-links a:hover,.nav-links a.is-hover{color:var(--text)}
+/* Kinetic glide pill: dynamically repositioned via GSAP quickTo across hovered nav items */
 .nav-glide{
   position:absolute;top:5px;left:0;height:calc(100% - 10px);width:0;border-radius:999px;pointer-events:none;opacity:0;
   background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
