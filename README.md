@@ -53,7 +53,7 @@ Use it for an EV, hardware product, gadget, car, SaaS launch, pre-order or waitl
 - **Interactive bits.** Drive-mode switcher (Rain / Road / Track) and a "hold to launch" 0–100 km/h demo.
 - **Six product images included** in `assets/` (WebP for the page, PNG originals for editing).
 - **Noir design system.** Near-black surfaces, one lime accent (`#C6FF00`), Clash Display + Satoshi typography, hairline borders.
-- **Responsive and accessible.** Fluid `clamp()` type, mobile layouts, and `prefers-reduced-motion` support.
+- **Responsive and accessible.** Fluid `clamp()` type, mobile layouts, adaptive GPU DPR throttling, and `prefers-reduced-motion` support.
 - **SEO-ready.** Semantic headings, meta description, theme color and preloaded hero image.
 
 ## Quick start
