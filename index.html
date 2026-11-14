@@ -229,6 +229,7 @@ main{position:relative;z-index:1}
 .tech{padding:clamp(120px,14vw,200px) 0}
 .tech-head{margin-bottom:clamp(40px,5vw,72px)}
 .tech-head h2{font-size:clamp(2.6rem,5.4vw,5.6rem);max-width:16ch}
+/* Four-column asymmetric bento grid with dense packing algorithm */
 .bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(260px,auto);grid-auto-flow:dense;gap:14px}
 .shell{padding:6px;border-radius:var(--r-card);background:rgba(237,237,232,.03);box-shadow:inset 0 0 0 1px var(--line)}
 .core{height:100%;border-radius:var(--r-inner);background:var(--bg-2);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden;padding:clamp(22px,2.4vw,32px);display:flex;flex-direction:column}
