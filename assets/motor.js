@@ -5,6 +5,11 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const TAU = Math.PI * 2;
 const axis = geometry => { geometry.rotateX(Math.PI / 2); return geometry; };
 
+/**
+ * Procedural rotational annulus generator:
+ * Sweeps a 2D profile polygon around the central Y axis via THREE.LatheGeometry,
+ * rotating into the Z assembly plane to form motor containment rings.
+ */
 function annulus(inner, outer, depth, material, segments = 128) {
   const profile = [[inner,-depth/2],[outer,-depth/2],[outer,depth/2],[inner,depth/2],[inner,-depth/2]];
   return new THREE.Mesh(axis(new THREE.LatheGeometry(profile.map(p=>new THREE.Vector2(...p)),segments)),material);
