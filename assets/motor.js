@@ -276,6 +276,8 @@ fasteners(stator,9,.491,.065,M,0,.008);
   const hoseCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(.40,.47,-.02),new THREE.Vector3(.36,.61,-.045),new THREE.Vector3(.27,.67,-.09)]);
   caliper.add(new THREE.Mesh(new THREE.TubeGeometry(hoseCurve,20,.012,8,false),M.recess));
   addPart(caliper,.222,1.65,0,false,new THREE.Vector3(.12,.13,0));
+  // BufferGeometryUtils optimization: consolidates non-instanced static meshes sharing materials
+  // into single unified geometry buffers while maintaining independent transform hierarchies.
   // Batch fixed details per moving assembly; winding and bolt arrays stay instanced.
   // This keeps the exploded animation independent without hundreds of draw calls.
   wheel.updateMatrixWorld(true);
