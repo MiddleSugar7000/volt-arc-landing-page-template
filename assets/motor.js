@@ -29,6 +29,11 @@ function roundedShape(w,h,r) {
   s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);
   s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s;
 }
+/**
+ * Rounded box extrusion utility:
+ * Generates continuous rounded-corner 2D outlines with quadratic Bézier arcs
+ * and applies multi-segment beveling to simulate milled billet aluminum.
+ */
 function block(w,h,d,r,material) {
   const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSize:.003,bevelThickness:.003,bevelSegments:3,curveSegments:8});
   g.translate(0,0,-d/2);return new THREE.Mesh(g,material);
