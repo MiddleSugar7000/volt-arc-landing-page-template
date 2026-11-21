@@ -102,6 +102,11 @@ function sidewall() {
   return new THREE.Mesh(new THREE.PlaneGeometry(2.04,2.04),new THREE.MeshStandardMaterial({map,transparent:true,roughness:.95,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));
 }
 
+/**
+ * Lathe turning finish simulation:
+ * Draws concentric circular tool marks with sinusoidal grayscale modulation
+ * to produce realistic anisotropic specular reflections across metallic brake rotors.
+ */
 function machinedFinish() {
   const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');
   g.fillStyle='#969696';g.fillRect(0,0,1024,1024);
