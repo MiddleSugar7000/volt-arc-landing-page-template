@@ -38,6 +38,11 @@ function block(w,h,d,r,material) {
   const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSize:.003,bevelThickness:.003,bevelSegments:3,curveSegments:8});
   g.translate(0,0,-d/2);return new THREE.Mesh(g,material);
 }
+/**
+ * Instanced circular array distributor:
+ * Populates hardware components (bolts, magnet retainers, coils) in a circular pattern
+ * using THREE.InstancedMesh to consolidate hundreds of draw calls into single draw passes.
+ */
 function circularInstances(group,geometry,material,count,radius,z,phase=0) {
   const mesh=new THREE.InstancedMesh(geometry,material,count), t=new THREE.Object3D();
   for(let i=0;i<count;i++) {const a=TAU*i/count+phase;t.position.set(Math.cos(a)*radius,Math.sin(a)*radius,z);t.rotation.set(0,0,a);t.updateMatrix();mesh.setMatrixAt(i,t.matrix);}
