@@ -121,6 +121,8 @@ function machinedFinish() {
 export function createMotor(scene) {
   const carbon=surfaceTexture('carbon'), rubber=surfaceTexture('rubber');
   carbon.repeat.set(1,1);
+  // Physically-Based Rendering (PBR) material definitions:
+  // Calibrated metalness, roughness, clearcoat, and bump scales for titanium, steel, carbon, and copper.
   const M={
     carbon:new THREE.MeshPhysicalMaterial({map:carbon,color:0xc3cad1,metalness:.25,roughness:.4,clearcoat:1,clearcoatRoughness:.06}),
     tire:new THREE.MeshStandardMaterial({color:0x16191c,roughness:.78,bumpMap:rubber,bumpScale:.014}),
