@@ -87,6 +87,11 @@ function surfaceTexture(kind) {
   if(kind==='carbon')t.colorSpace=THREE.SRGBColorSpace;
   return t;
 }
+/**
+ * Radial sidewall graphic generator:
+ * Renders curved tire specification markings along circular arcs onto a transparent canvas plane
+ * with polygonOffsetFactor to prevent Z-fighting against the curved tire mesh.
+ */
 function sidewall() {
   const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');
   g.translate(512,512);g.fillStyle='#777a78';g.font='500 21px sans-serif';g.textAlign='center';
