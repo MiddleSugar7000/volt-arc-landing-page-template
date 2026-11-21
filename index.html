@@ -406,6 +406,7 @@ footer{border-top:1px solid var(--line);padding-top:clamp(48px,6vw,80px);overflo
   .foot-row>div:first-child{grid-column:span 2}
   .legal{flex-direction:column}
 }
+/* Accessibility override: suppresses kinetic transform animations for users with vestibular sensitivities */
 @media (prefers-reduced-motion:reduce){
   .manifesto .w{opacity:1}
   .reveal-media{clip-path:none}
