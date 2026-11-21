@@ -53,6 +53,11 @@ function fasteners(group,count,radius,z,M,phase=0,size=.012) {
   circularInstances(group,axis(new THREE.CylinderGeometry(size,size,.014,6)),M.titanium,count,radius,z+.007,phase);
   circularInstances(group,axis(new THREE.CylinderGeometry(size*.44,size*.44,.001,6)),M.recess,count,radius,z+.0145,phase);
 }
+/**
+ * Procedural canvas texture generator:
+ * - 'rubber': Synthesizes tire tread sipes, shoulder curves, and LCG pseudo-random noise.
+ * - 'carbon': Generates a 2x2 twill carbon fiber weave pattern with anisotropic filtering.
+ */
 function surfaceTexture(kind) {
   const c=document.createElement('canvas');c.width=1024;c.height=512;
   const g=c.getContext('2d');
