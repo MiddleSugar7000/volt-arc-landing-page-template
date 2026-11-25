@@ -1227,6 +1227,11 @@ key.shadow.bias = -.00015;
 key.shadow.radius = 3;
 const { wheel, parts, glow } = createMotor(scene);
 
+/**
+ * Streaming kinetic speed vectors:
+ * Allocates interleaved position and vertex color buffers for 90 randomized line segments
+ * rendered with additive blending and depth-write disabled for neon particle trails.
+ */
 // Kinetic speed lines: 90 streaming vector segments creating an illusion of high-velocity forward transit
 const LN = 90;
 const lpos = new Float32Array(LN * 6), lcol = new Float32Array(LN * 6), lspd = new Float32Array(LN);
