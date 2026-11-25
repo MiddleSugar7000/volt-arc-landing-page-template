@@ -1317,6 +1317,7 @@ function frame(now) {
     // Internals sit inside the closed wheel: skip drawing them until it opens
     const open = S.explode > .015;
     for (const p of parts) if (p.obj.userData.internal) p.obj.visible = open;
+    // Throttled shadow map passes and adaptive DPR resolution scaling based on scrolling velocity and frame delta
     // Shadows are expensive: refresh every third frame, or every frame while parts move
     frameNo++;
     const moving = Math.abs(S.explode - lastExplode) > 1e-4; lastExplode = S.explode;
