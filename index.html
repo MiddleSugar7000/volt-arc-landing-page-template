@@ -1337,6 +1337,11 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
+/**
+ * Reactive render loop activation:
+ * Listens on GSAP ticker to re-awaken the requestAnimationFrame loop when
+ * scrolling brings the 3D canvas stage back above the visibility opacity threshold.
+ */
 // Restart the loop when the canvas fades back in (scrolling back up)
 gsap.ticker.add(() => {
   if (!running && S.opacity > 0.01) { running = true; canvas.style.visibility = ''; last = performance.now(); requestAnimationFrame(frame); }
