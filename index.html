@@ -1161,6 +1161,11 @@ burger.addEventListener('click', () => {
 /* =========================================================
    3D: axial-flux hub motor + carbon wheel, built in code
    ========================================================= */
+/**
+ * Primary WebGL renderer setup:
+ * Configures antialiased transparent canvas with ACES Filmic tone mapping,
+ * PCF soft shadow maps, and sRGB color space reproduction.
+ */
 const canvas = document.getElementById('gl');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
 // Perf: cap DPR at 1.5; adaptive quality may lower it further on slow GPUs
