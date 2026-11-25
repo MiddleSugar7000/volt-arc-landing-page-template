@@ -1283,6 +1283,7 @@ function frame(now) {
   // Canvas fully faded out: stop the loop entirely until it is needed again
   if (S.opacity <= 0.01) { running = false; canvas.style.visibility = 'hidden'; return; }
   {
+    // Interpolate mouse coordinates for smooth camera parallax damping
     mouse.x += (mouse.tx - mouse.x) * .05; mouse.y += (mouse.ty - mouse.y) * .05;
     const vel = lenis ? Math.abs(lenis.velocity) : 0;
     const introBoost = (1 - S.intro) * 16;
