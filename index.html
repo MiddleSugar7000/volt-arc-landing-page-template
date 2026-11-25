@@ -1104,6 +1104,11 @@ if (!reduce) {
   gsap.ticker.lagSmoothing(0);
   lenis.stop();
 }
+/**
+ * Smooth anchor jump routing:
+ * Intercepts internal in-page hash links, automatically closes mobile navigation drawer
+ * and triggers smooth Lenis scroll animation (1.6s duration) with fallback to native scrollIntoView.
+ */
 document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
   const id = a.getAttribute('href');
   if (id.length < 2) return;
