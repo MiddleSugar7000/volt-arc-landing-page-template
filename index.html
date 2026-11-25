@@ -1258,6 +1258,11 @@ const S = { ...P.hero(), explode: 0, opacity: 1, intro: reduce ? 1 : 0 };
 const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
 addEventListener('pointermove', e => { mouse.tx = e.clientX / innerWidth * 2 - 1; mouse.ty = -(e.clientY / innerHeight * 2 - 1); }, { passive: true });
 
+/**
+ * Viewport resize synchronization:
+ * Updates WebGL renderer pixel drawing buffer size without overriding CSS layout dimensions,
+ * and recalculates perspective camera aspect ratio and projection matrix.
+ */
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setSize(w, h, false);
