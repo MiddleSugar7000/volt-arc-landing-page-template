@@ -1090,6 +1090,12 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const smooth = t => t * t * (3 - 2 * t);
 
 /* ---------- Smooth scroll ---------- */
+/**
+ * Smooth scrolling coordinator:
+ * Instantiates Lenis inertial scrolling when prefers-reduced-motion is inactive.
+ * Binds Lenis animation ticks directly to GSAP ticker and disables lag smoothing
+ * to maintain strict frame synchronization with ScrollTrigger scrub timelines.
+ */
 let lenis = null;
 if (!reduce) {
   lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1 });
