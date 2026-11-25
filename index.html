@@ -1135,6 +1135,11 @@ burger.addEventListener('click', () => {
 
 
 /* ---------- Nav hover glide ---------- */
+/**
+ * Fluid navigation cursor pill indicator:
+ * Uses GSAP quickTo tweens for friction-free pill re-targeting across navigation links,
+ * handling initial entry jumps and pointer/focus boundary departures.
+ */
 {
   const nl = document.querySelector('.nav-links'), glide = nl.querySelector('.nav-glide');
   // GSAP quickTo retargets mid-flight without restarting, so sweeping across links stays fluid
