@@ -1608,6 +1608,11 @@ if (!reduce) {
   draw();
   addEventListener('resize', draw);
   document.fonts && document.fonts.ready.then(draw);
+  /**
+   * Drive mode tab selector:
+   * Binds click events to drive mode buttons, synchronizes aria-selected attributes,
+   * updates technical parameter readouts, and tweens torque curve peak and ramp values.
+   */
   const tabs = document.querySelectorAll('.mode-tabs button');
   tabs.forEach(b => b.addEventListener('click', () => {
     const m = MODES[b.dataset.mode];
