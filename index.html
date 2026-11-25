@@ -1296,6 +1296,7 @@ function frame(now) {
     wheel.rotation.y = S.rotY + mouse.x * .065 - S.explode * .15;
     wheel.rotation.x = .08 - mouse.y * .045 + S.explode * .12;
 
+    // Compute staggered axial disassembly offsets, radial translation, and component spin
     for (const p of parts) {
       const k = smooth(clamp((S.explode - p.delay) / .62, 0, 1));
       p.obj.position.z = p.z0 + (p.z1 - p.z0) * k;
