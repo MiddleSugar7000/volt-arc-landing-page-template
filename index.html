@@ -1206,6 +1206,11 @@ scene.environmentIntensity = .85;
 studio.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose();}});
 pmrem.dispose();
 
+/**
+ * Studio perspective camera and directional lighting rig:
+ * Positions a telephoto 24-degree perspective camera and balances key, rim, and back lights
+ * with configured orthographic shadow camera bounds and shadow map biases.
+ */
 const camera = new THREE.PerspectiveCamera(24, 1, 0.1, 100);
 camera.position.set(0, 0, 9.4);
 
