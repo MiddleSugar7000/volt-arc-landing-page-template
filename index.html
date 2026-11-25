@@ -1385,6 +1385,11 @@ else {
 /* =========================================================
    Scroll choreography
    ========================================================= */
+/**
+ * Hero-to-exploded scroll timeline choreography:
+ * Interpolates motor 3D stage position, scale, and Y-rotation from hero presentation angle
+ * to the pinned technical explosion orientation while fading the hero typography wrap.
+ */
 // Smooth transition from hero presentation angle to the pinned technical explosion stage
 gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1, invalidateOnRefresh: true } })
   .to(S, { x: () => P.ex().x, y: () => P.ex().y, s: () => P.ex().s, rotY: () => P.ex().rotY, ease: 'none' })
